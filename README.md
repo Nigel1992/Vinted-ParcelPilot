@@ -4,6 +4,8 @@ Vinted ParcelPilot is a userscript that makes Vinted's orders page more useful b
 
 It adds a quick **My Orders** shortcut and displays available shipment information such as the carrier, tracking ID, tracking page, latest shipment update, estimated delivery, and seller location when Vinted shares it.
 
+[Install on GreasyFork](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
 ## Features
@@ -25,7 +27,7 @@ The script runs on many Vinted domains, including:
 ## Installation
 
 1. Install a userscript manager such as Tampermonkey or Violentmonkey.
-2. Install Vinted ParcelPilot from GreasyFork, or add `vinted.js` manually to your userscript manager.
+2. Install [Vinted ParcelPilot from GreasyFork](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot), or add `vinted.js` manually to your userscript manager.
 3. Open Vinted while logged in and go to **My Orders**.
 
 ## FAQ
