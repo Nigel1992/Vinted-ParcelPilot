@@ -56,4 +56,8 @@ Vinted ParcelPilot does not use third-party servers, analytics, tracking pixels,
 
 ## License
 
-MIT
+Custom Non-Commercial Attribution License.
+
+You may use, modify, and share this project for personal and non-commercial purposes. You may not sell it or use it commercially. Modified versions must keep credit to Nigel1992 and link back to the original repository:
+
+https://github.com/Nigel1992/Vinted-ParcelPilot

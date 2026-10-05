@@ -3,7 +3,7 @@
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
 // @version      1.0.0
 // @description  Adds an orders shortcut and shows carrier, tracking ID and link, latest shipment update, estimated delivery, and shared seller location on Vinted orders.
-// @license      MIT
+// @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
 // @grant        none
 // @run-at       document-idle
