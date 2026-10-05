@@ -4,7 +4,7 @@ Vinted ParcelPilot is a userscript that makes Vinted's orders page more useful b
 
 It adds a quick **My Orders** shortcut and displays available shipment information such as the carrier, tracking ID, tracking page, latest shipment update, estimated delivery, and seller location when Vinted shares it.
 
-![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/xhi34n1fl18864njlwlmap1rcvwe)
+![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
 ## Features
 
