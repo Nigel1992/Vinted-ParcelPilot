@@ -8,13 +8,18 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.2.1
+## What's new in 1.2.2
+
+Compared with 1.2.1, this patch:
+
+- Keeps the cursor in the note and tag fields while typing, even when Vinted updates the page.
+- Stops order-card click handlers from interfering with note and tag input.
+- Removes the theme selector and all ParcelPilot light/dark mode logic.
 
 Compared with 1.2.0, this patch improves local notes and tags:
 
 - Notes use a readable multi-line field with stronger contrast and visible focus styling.
 - Notes and tags are saved automatically while typing, with the button still available for immediate saving.
-- Dark mode now gives note and tag fields their own readable background, text and placeholder colours.
 
 Compared with 1.1.0, this release adds:
 
@@ -25,7 +30,6 @@ Compared with 1.1.0, this release adds:
 - Per-order local notes and comma-separated local tags, stored only in this browser.
 - Optional browser notifications when a cached parcel changes status.
 - Stale-update highlighting for parcels without a recent carrier update.
-- Automatic, light and dark display themes.
 
 Compared with the remote 1.0.0 baseline, this release adds:
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.2.1
+// @version      1.2.2
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -37,7 +37,6 @@
 		cacheMinutes: 5,
 		staleDays: 5,
 		sort: 'none',
-		theme: 'auto',
 		notifications: false,
 	};
 	const settings = loadSettings();
@@ -127,10 +126,6 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			saveOrderNote(orderId, text, tagText);
 			noteSaveTimers.delete(orderId);
 		}, 350));
-	}
-
-	function applyTheme() {
-		document.documentElement.dataset.vintedParcelPilotTheme = settings.theme;
 	}
 
 	function startAutoRefresh() {
@@ -817,22 +812,6 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				background: #eff8f8;
 				color: #007f84;
 				cursor: pointer;
-			}
-			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking-toolbar,
-			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking {
-				border-color: #435154;
-				background: #1d292b;
-				color: #edf5f5;
-			}
-			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note input,
-			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note textarea {
-				border-color: #718487;
-				background: #263638;
-				color: #f3f8f8;
-			}
-			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note input::placeholder,
-			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note textarea::placeholder {
-				color: #b8c8c9;
 			}
 			.vinted-tracking--compact {
 				padding: 8px 12px;
@@ -1629,11 +1608,15 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		input.placeholder = labels.notes;
 		input.setAttribute('aria-label', labels.notes);
 		input.rows = 1;
+		input.addEventListener('mousedown', (event) => event.stopPropagation());
+		input.addEventListener('click', (event) => event.stopPropagation());
 		const tags = document.createElement('input');
 		tags.type = 'text';
 		tags.value = (saved.tags ?? []).join(', ');
 		tags.placeholder = 'Tags';
 		tags.setAttribute('aria-label', 'Tags');
+		tags.addEventListener('mousedown', (event) => event.stopPropagation());
+		tags.addEventListener('click', (event) => event.stopPropagation());
 		const save = document.createElement('button');
 		save.type = 'button';
 		save.textContent = labels.save;
@@ -1792,21 +1775,6 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			applySort();
 		});
 		toolsGroup.append(sort);
-		const theme = document.createElement('select');
-		theme.setAttribute('aria-label', 'Theme');
-		[['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].forEach(([value, text]) => {
-			const option = document.createElement('option');
-			option.value = value;
-			option.textContent = text;
-			option.selected = settings.theme === value;
-			theme.append(option);
-		});
-		theme.addEventListener('change', () => {
-			settings.theme = theme.value;
-			saveSettings();
-			applyTheme();
-		});
-		toolsGroup.append(theme);
 		const refreshMinutes = document.createElement('input');
 		refreshMinutes.type = 'number';
 		refreshMinutes.min = '1';
@@ -2343,13 +2311,13 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 
 	new MutationObserver(() => {
 		addOrdersShortcut();
+		if (document.activeElement?.closest('[data-vinted-note-editor]')) return;
 		scheduleScan();
 	}).observe(document.body, {
 		childList: true,
 		subtree: true,
 	});
 	addOrdersShortcut();
-	applyTheme();
 	scheduleScan();
 	startAutoRefresh();
 })();
