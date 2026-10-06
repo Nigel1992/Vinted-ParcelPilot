@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.2.2
+// @version      1.3.0
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -37,6 +37,7 @@
 		cacheMinutes: 5,
 		staleDays: 5,
 		sort: 'none',
+		sortDirection: 'asc',
 		notifications: false,
 	};
 	const settings = loadSettings();
@@ -66,6 +67,13 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	Object.assign(labels, {
 		dashboard: language === 'nl' ? 'Overzicht' : 'Overview',
 		sort: language === 'nl' ? 'Sorteren' : 'Sort',
+		sortDirection: language === 'nl' ? 'Volgorde' : 'Direction',
+		ascending: language === 'nl' ? 'Oplopend (laag naar hoog)' : 'Ascending (low to high)',
+		descending: language === 'nl' ? 'Aflopend (hoog naar laag)' : 'Descending (high to low)',
+		orderFilterHelp: language === 'nl' ? 'Welke bestellingen wil je zien?' : 'Which orders should be shown?',
+		parcelFilterHelp: language === 'nl' ? 'Filter op de status van het pakket' : 'Filter by parcel status',
+		optionsHelp: language === 'nl' ? 'Weergave en laadopties' : 'Display and loading options',
+		toolsHelp: language === 'nl' ? 'Overzicht, sorteren en hulpmiddelen' : 'Overview, sorting and tools',
 		export: language === 'nl' ? 'Exporteer CSV' : 'Export CSV',
 		refresh: language === 'nl' ? 'Nu vernieuwen' : 'Refresh now',
 		autoRefresh: language === 'nl' ? 'Auto vernieuwen' : 'Auto refresh',
@@ -1105,6 +1113,15 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				flex-wrap: wrap;
 				align-items: center;
 				gap: 4px 10px;
+				padding: 8px 10px;
+				border: 1px solid #e1e9e9;
+				border-radius: 6px;
+				background: #fbfdfd;
+			}
+			.vinted-tracking-toolbar__group--stacked {
+				align-items: flex-start;
+				flex-direction: column;
+				gap: 6px;
 			}
 			.vinted-tracking-toolbar__group-label {
 				color: #687578;
@@ -1112,6 +1129,11 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				font-weight: 700;
 				letter-spacing: 0.04em;
 				text-transform: uppercase;
+			}
+			.vinted-tracking-toolbar__group-help {
+				flex-basis: 100%;
+				color: #526568;
+				font-size: 12px;
 			}
 			.vinted-tracking-toolbar__filters--empty {
 				color: #687578;
@@ -1126,13 +1148,29 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				gap: 4px;
 			}
 			.vinted-tracking-toolbar button,
-			.vinted-tracking-toolbar label {
+			.vinted-tracking-toolbar label,
+			.vinted-tracking-toolbar select,
+			.vinted-tracking-toolbar input[type="number"] {
 				min-height: 30px;
 				border: 1px solid #d5e1e1;
 				border-radius: 4px;
 				background: #fff;
 				color: #293335;
 				font: inherit;
+			}
+			.vinted-tracking-toolbar select,
+			.vinted-tracking-toolbar input[type="number"] {
+				padding: 5px 8px;
+				background: #fff;
+			}
+			.vinted-tracking-toolbar__control {
+				display: inline-flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 5px;
+				color: #293335;
+				font-size: 12px;
+				font-weight: 600;
 			}
 			.vinted-tracking-toolbar button {
 				padding: 5px 9px;
@@ -1523,6 +1561,13 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		return label;
 	}
 
+	function createToolbarGroupHelp(text) {
+		const help = document.createElement('span');
+		help.className = 'vinted-tracking-toolbar__group-help';
+		help.textContent = text;
+		return help;
+	}
+
 	function getOrderRows() {
 		return [...document.querySelectorAll('[data-vinted-order-id]')];
 	}
@@ -1560,7 +1605,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		cards.sort((left, right) => {
 			const a = value(left.querySelector('[data-vinted-order-id]'));
 			const b = value(right.querySelector('[data-vinted-order-id]'));
-			return typeof a === 'number' ? a - b : String(a).localeCompare(String(b), pageLocale);
+			const comparison = typeof a === 'number' ? a - b : String(a).localeCompare(String(b), pageLocale);
+			return settings.sortDirection === 'desc' ? -comparison : comparison;
 		}).forEach((card) => list.append(card));
 	}
 
@@ -1646,8 +1692,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		toolbar.setAttribute('aria-label', labels.settings);
 
 		const orderGroup = document.createElement('div');
-		orderGroup.className = 'vinted-tracking-toolbar__group';
-		orderGroup.append(createToolbarGroupLabel(labels.orderStatus));
+		orderGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__group--stacked';
+		orderGroup.append(createToolbarGroupLabel(labels.orderStatus), createToolbarGroupHelp(labels.orderFilterHelp));
 		const orderButtons = document.createElement('div');
 		orderButtons.className = 'vinted-tracking-toolbar__filters';
 		orderGroup.append(orderButtons);
@@ -1681,8 +1727,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		toolbar.append(orderGroup);
 
 		const shipmentGroup = document.createElement('div');
-		shipmentGroup.className = 'vinted-tracking-toolbar__group';
-		shipmentGroup.append(createToolbarGroupLabel(labels.shipmentStatus));
+		shipmentGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__group--stacked';
+		shipmentGroup.append(createToolbarGroupLabel(labels.shipmentStatus), createToolbarGroupHelp(labels.parcelFilterHelp));
 		const filters = document.createElement('div');
 		filters.className = 'vinted-tracking-toolbar__filters';
 		for (const [value, label] of [['all', labels.all], ['active', labels.active], ['delayed', labels.delayed], ['delivered', labels.delivered], ['missing', labels.noTracking]]) {
@@ -1707,8 +1753,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		toolbar.append(shipmentGroup);
 
 		const optionsGroup = document.createElement('div');
-		optionsGroup.className = 'vinted-tracking-toolbar__group';
-		optionsGroup.append(createToolbarGroupLabel(labels.options));
+		optionsGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__group--stacked';
+		optionsGroup.append(createToolbarGroupLabel(labels.options), createToolbarGroupHelp(labels.optionsHelp));
 		toolbar.append(optionsGroup);
 
 		for (const [key, label] of [['compact', labels.compact], ['showAnimation', labels.animation], ['showSellerLocation', labels.seller], ['showCarrierLogo', labels.logo], ['debug', labels.debug]]) {
@@ -1741,8 +1787,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		}
 
 		const toolsGroup = document.createElement('div');
-		toolsGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__tools';
-		toolsGroup.append(createToolbarGroupLabel(labels.dashboard));
+		toolsGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__tools vinted-tracking-toolbar__group--stacked';
+		toolsGroup.append(createToolbarGroupLabel(labels.dashboard), createToolbarGroupHelp(labels.toolsHelp));
 		const dashboard = document.createElement('span');
 		dashboard.dataset.vintedTrackingDashboard = 'true';
 		toolsGroup.append(dashboard);
@@ -1760,6 +1806,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			scheduleScan();
 		});
 		toolsGroup.append(refreshButton);
+		const sortControl = document.createElement('label');
+		sortControl.className = 'vinted-tracking-toolbar__control';
+		sortControl.textContent = `${labels.sort}:`;
 		const sort = document.createElement('select');
 		sort.setAttribute('aria-label', labels.sort);
 		[['none', labels.all], ['status', labels.shipmentStatus], ['updated', labels.latestUpdate], ['estimate', labels.estimatedDelivery], ['carrier', 'Carrier'], ['transit', labels.daysInTransit]].forEach(([value, text]) => {
@@ -1774,7 +1823,27 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			saveSettings();
 			applySort();
 		});
-		toolsGroup.append(sort);
+		sortControl.append(sort);
+		toolsGroup.append(sortControl);
+		const directionControl = document.createElement('label');
+		directionControl.className = 'vinted-tracking-toolbar__control';
+		directionControl.textContent = `${labels.sortDirection}:`;
+		const direction = document.createElement('select');
+		direction.setAttribute('aria-label', labels.sortDirection);
+		[['asc', labels.ascending], ['desc', labels.descending]].forEach(([value, text]) => {
+			const option = document.createElement('option');
+			option.value = value;
+			option.textContent = text;
+			option.selected = settings.sortDirection === value;
+			direction.append(option);
+		});
+		direction.addEventListener('change', () => {
+			settings.sortDirection = direction.value;
+			saveSettings();
+			applySort();
+		});
+		directionControl.append(direction);
+		toolsGroup.append(directionControl);
 		const refreshMinutes = document.createElement('input');
 		refreshMinutes.type = 'number';
 		refreshMinutes.min = '1';

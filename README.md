@@ -8,7 +8,13 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.2.2
+## What's new in 1.3.0
+
+Compared with 1.2.2, this release improves the toolbar:
+
+- Parcel status, order status, options and tools now have separate visual panels with explanatory text.
+- Sort controls are explicitly labelled and support both ascending (low to high) and descending (high to low) order.
+- The selected sort direction is remembered locally.
 
 Compared with 1.2.1, this patch:
 
