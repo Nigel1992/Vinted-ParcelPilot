@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.1
+// @version      1.5.2
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -78,6 +78,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		export: language === 'nl' ? 'Exporteer CSV' : 'Export CSV',
 		refresh: language === 'nl' ? 'Nu vernieuwen' : 'Refresh now',
 		autoRefresh: language === 'nl' ? 'Auto vernieuwen' : 'Auto refresh',
+		refreshInterval: language === 'nl' ? 'Ververs elke' : 'Refresh every',
+		minutes: language === 'nl' ? 'minuten' : 'minutes',
 		notes: language === 'nl' ? 'Notitie' : 'Note',
 		tags: language === 'nl' ? 'Tags' : 'Tags',
 		save: language === 'nl' ? 'Opslaan' : 'Save',
@@ -817,7 +819,17 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			}
 			.vinted-tracking__note textarea {
 				min-height: 38px;
+				height: 38px;
+				overflow-y: hidden;
 				resize: vertical;
+			}
+			.vinted-tracking__note-field--tags {
+				flex: 1 1 160px;
+			}
+			.vinted-tracking__note-field--tags input {
+				min-width: 0;
+				width: 100%;
+				max-width: 100%;
 			}
 			.vinted-tracking__note input::placeholder,
 			.vinted-tracking__note textarea::placeholder {
@@ -1785,7 +1797,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		tags.addEventListener('mousedown', (event) => event.stopPropagation());
 		tags.addEventListener('click', (event) => event.stopPropagation());
 		const tagsField = document.createElement('label');
-		tagsField.className = 'vinted-tracking__note-field';
+		tagsField.className = 'vinted-tracking__note-field vinted-tracking__note-field--tags';
 		const tagsLabel = document.createElement('span');
 		tagsLabel.className = 'vinted-tracking__note-label';
 		tagsLabel.textContent = labels.tags;
@@ -1794,8 +1806,20 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		save.type = 'button';
 		save.textContent = labels.save;
 		const queueSave = () => scheduleNoteSave(orderId, input.value, tags.value);
+		const resizeNote = () => {
+			input.style.height = 'auto';
+			input.style.height = `${Math.max(38, input.scrollHeight)}px`;
+		};
+		const resizeTags = () => {
+			const length = Math.max(12, tags.value.length + 1);
+			tags.style.width = `${Math.min(48, length)}ch`;
+		};
 		input.addEventListener('input', queueSave);
+		input.addEventListener('input', resizeNote);
 		tags.addEventListener('input', queueSave);
+		tags.addEventListener('input', resizeTags);
+		resizeNote();
+		resizeTags();
 		save.addEventListener('click', () => {
 			clearTimeout(noteSaveTimers.get(orderId));
 			noteSaveTimers.delete(orderId);
@@ -1981,19 +2005,26 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		});
 		directionControl.append(direction);
 		toolsGroup.append(directionControl);
+		const refreshInterval = document.createElement('label');
+		refreshInterval.className = 'vinted-tracking-toolbar__control';
+		refreshInterval.textContent = `${labels.refreshInterval}:`;
+		refreshInterval.title = `${labels.autoRefresh}: ${labels.refreshInterval} ${labels.minutes}`;
 		const refreshMinutes = document.createElement('input');
 		refreshMinutes.type = 'number';
 		refreshMinutes.min = '1';
 		refreshMinutes.max = '120';
 		refreshMinutes.value = settings.refreshMinutes;
-		refreshMinutes.title = `${labels.autoRefresh} (minutes)`;
+		refreshMinutes.title = `${labels.autoRefresh}: ${labels.refreshInterval} ${labels.minutes}`;
 		refreshMinutes.addEventListener('change', () => {
 			settings.refreshMinutes = Math.min(120, Math.max(1, Number(refreshMinutes.value) || 10));
 			refreshMinutes.value = settings.refreshMinutes;
 			saveSettings();
 			startAutoRefresh();
 		});
-		toolsGroup.append(refreshMinutes);
+		const minutesSuffix = document.createElement('span');
+		minutesSuffix.textContent = labels.minutes;
+		refreshInterval.append(refreshMinutes, minutesSuffix);
+		toolsGroup.append(refreshInterval);
 		const autoRefresh = document.createElement('label');
 		autoRefresh.className = 'vinted-tracking-toolbar__toggle';
 		const autoRefreshInput = document.createElement('input');

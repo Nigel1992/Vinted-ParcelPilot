@@ -8,7 +8,13 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.5.1
+## What's new in 1.5.2
+
+Compared with 1.5.1, this patch:
+
+- Automatically grows the Notitie field vertically as text is entered.
+- Adjusts the Tags field width to the entered content within the available card width.
+- Labels the auto-refresh number as an interval in minutes, so the value `10` clearly means refresh every 10 minutes.
 
 Compared with 1.5.0, the fixed Options card is now positioned in the lower-left corner on desktop and mobile.
 
