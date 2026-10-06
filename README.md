@@ -8,7 +8,18 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.1.0
+## What's new in 1.2.0
+
+Compared with 1.1.0, this release adds:
+
+- A local dashboard with shipment counts, manual refresh, automatic refresh and configurable refresh intervals.
+- A local cache to reduce repeated Vinted API requests, with a manual cache-clearing refresh.
+- Sorting by status, latest update, estimated delivery, carrier or time in transit.
+- CSV export of the visible parcel data, including local notes and tags.
+- Per-order local notes and comma-separated local tags, stored only in this browser.
+- Optional browser notifications when a cached parcel changes status.
+- Stale-update highlighting for parcels without a recent carrier update.
+- Automatic, light and dark display themes.
 
 Compared with the remote 1.0.0 baseline, this release adds:
 
@@ -38,6 +49,7 @@ Compared with the remote 1.0.0 baseline, this release adds:
 - Shows the seller's shared location for bought orders when Vinted provides it.
 - Supports many Vinted country domains.
 - Uses localized interface labels based on the current Vinted page language.
+- Keeps preferences, cache, notes, tags and notification settings locally in the browser; no ParcelPilot server is used.
 
 ## Settings
 
@@ -58,6 +70,11 @@ The two status groups work together: pick a parcel status first, then narrow it 
 | Seller location | Show the seller's shared location for bought orders. |
 | Carrier logos | Use carrier logos when Vinted provides them, otherwise fall back to carrier colours. |
 | Debug | Log extra information to the browser console, including which shipment event started the "days in transit" count and why, plus the detected Vinted order filter. |
+| Auto refresh | Refresh active order data at the configured interval. |
+| Refresh interval | Choose how often automatic refresh runs, in minutes. |
+| Notifications | Ask for browser permission and notify you when a parcel status changes. |
+
+The toolbar also provides sorting, a dashboard, a manual refresh button and CSV export. Parcel data is cached locally for five minutes by default. A parcel with no carrier update for five days is highlighted as stale; these thresholds and local settings can be changed in the userscript settings object.
 
 If Vinted's order filter cannot be found on the page, the toolbar says so instead of showing buttons that would do nothing, and Vinted's own bar stays visible.
 

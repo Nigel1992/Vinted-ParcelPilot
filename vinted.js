@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.1.0
-// @description  Adds an orders shortcut, per-parcel status badges, shipment details, carrier tracking links, copy actions, filters and a settings toolbar on Vinted orders.
+// @version      1.2.0
+// @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
 // @grant        none
@@ -23,6 +23,8 @@
 	const sellerLocationResults = new Map();
 	const pendingSellerLocations = new Map();
 	const SETTINGS_KEY = 'vintedParcelPilotSettings';
+	const CACHE_KEY = 'vintedParcelPilotCache';
+	const NOTES_KEY = 'vintedParcelPilotNotes';
 	const defaultSettings = {
 		compact: false,
 		showAnimation: true,
@@ -30,8 +32,16 @@
 		showCarrierLogo: true,
 		debug: false,
 		filter: 'all',
+		autoRefresh: true,
+		refreshMinutes: 10,
+		cacheMinutes: 5,
+		staleDays: 5,
+		sort: 'none',
+		theme: 'auto',
+		notifications: false,
 	};
 	const settings = loadSettings();
+	const notes = loadNotes();
 	const pageLocale = document.documentElement.lang || navigator.language || 'en';
 	const language = pageLocale.toLowerCase().split(/[-_]/)[0];
 	const apiLocale = pageLocale.replace('_', '-');
@@ -54,6 +64,17 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		hu: { trackingId: 'Követési szám', trackingPage: 'Csomag nyomon követése', latestUpdate: 'Legutóbbi frissítés', estimatedDelivery: 'Várható kézbesítés', sellerLocation: 'Az eladó helye', location: 'Hely', myOrders: 'Rendeléseim', loading: 'A nyomon követési adatok betöltése…', unavailable: 'A követési szám nem érhető el', notShipped: 'Még nincs feladva', loadFailed: 'A nyomon követés nem tölthető be', retry: 'Újrapróbálkozás', copy: 'Másolás', copied: 'Másolva', all: 'Összes', active: 'Úton', delayed: 'Késésben', delivered: 'Kézbesítve', noTracking: 'Nyomkövetés nélkül', compact: 'Tömör', animation: 'Animáció', seller: 'Az eladó helye', logo: 'Futárszervezetek logói', debug: 'Hibakeresés', settings: 'ParcelPilot beállítások', inTransit: 'Úton', readyForPickup: 'Átvételre kész', labelCreated: 'Címke létrehozva', exception: 'Probléma', unknown: 'Ismeretlen', daysInTransit: 'nap az úton', dayInTransit: 'nap az úton', details: 'Szállítási adatok', orderStatus: 'Rendelés állapota', shipmentStatus: 'Csomag állapota', options: 'Beállítások', orderStatusUnavailable: 'Nem található ezen az oldalon', updatedAgo: 'frissítve', overdue: 'A kézbesítési becslés lejárt' },
 	};
 	const labels = { ...translations.en, ...(translations[language] ?? {}) };
+	Object.assign(labels, {
+		dashboard: language === 'nl' ? 'Overzicht' : 'Overview',
+		sort: language === 'nl' ? 'Sorteren' : 'Sort',
+		export: language === 'nl' ? 'Exporteer CSV' : 'Export CSV',
+		refresh: language === 'nl' ? 'Nu vernieuwen' : 'Refresh now',
+		autoRefresh: language === 'nl' ? 'Auto vernieuwen' : 'Auto refresh',
+		notes: language === 'nl' ? 'Notitie' : 'Note',
+		save: language === 'nl' ? 'Opslaan' : 'Save',
+		stale: language === 'nl' ? 'Geen update' : 'No recent update',
+		notification: language === 'nl' ? 'Meldingen' : 'Notifications',
+	});
 	const preShipmentPattern = /order (?:placed|received|confirmed|created|cancelled|paid|awaiting)|payment (?:pending|received|failed)|\b(?:paid|facture|invoice|factuur|factura|fattura|rechnung|fakt[uú]ra)\b|being prepared|preparing|under preparation|wird vorbereitet|wordt (?:voorbereid|verpakt)|voorbereid\w*|\bverpakt\b|bestelling (?:geplaatst|ontvangen|bevestigd|geannuleerd|aangemaakt)|\b(?:betal\w*|betaald)\b|commande (?:pass[ée]e|confirm[ée]e|re[çc]ue|annul[ée]e|cr[ée]e[ée]e)|\b(?:paiement|pay[ée]e)\b|en pr[ée]paration|bestellung (?:aufgegeben|eingegangen|best[äa]tigt|erstellt)|\b(?:zahlung|bezahlt)\b|in vorbereitung|pedido (?:realizado|confirmado|recibido|creado)|\b(?:pago|pagado)\b|preparando|prepar[áa]ndose|ordine (?:effettuato|confermato|creato)|\b(?:pagamento|pagato)\b|in preparazione|zam[oó]wienie (?:z[łl]o[żz]one|potwierdzone|utworzone)|\b(?:p[łl]atno[śs][cć]\w*|op[łl]acone)\b|w przygotowaniu|objedn[aá]vka (?:vytvo[řr]en\w*|potvrzena)|\b(?:platb\w*|zaplaceno)\b|v p[řr][íi]prav[ěe]|objedn[aá]vka (?:vytvoren\w*|potvrden\w*)|\b(?:zaplate[nń][ée]|fakt[uú]ra)\b|v pr[íi]prave|best[äa]llning (?:lagd|mottagen|bekr[äa]ftad)|\b(?:betalning|betald)\b|f[öo]rberer|naro[čc]ilo (?:oddano|prejeto|potrjeno)|\b(?:pla[čc]il\w*|pla[čc]an\w*|ra[čc]un)\b|v pripravi|tellimus (?:tehtud|vastu v[õo]etud)|\b(?:makse|tasutud)\b|valmistamisel|u[žz]sakymas (?:pateiktas|gautas)|\b(?:mok[ėe]jim\w*|apmok[ėe]ta)\b|ruo[šs]ioma|pas[uū]t[īi]jums (?:izdar[īi]ts|sa[ņņ]emts)|\b(?:maks[aā]jum\w*|apmaks[aā]ts|r[ēe]kins)\b|sagatavo[šs][aā]n[aā]|rendel[ée]s (?:leadva|be[ée]rkezett)|\b(?:fizet[ée]s|sz[aá]mla)\b|el[őo]k[ée]sz[íi]t[ée]s alatt/;
 	const shipmentEventPattern = /\blabel\b|shipped|dispatched|handed over|handed to|picked up|collected|in transit|out for delivery|on its way|arriv\w*|departed|with (?:the )?(?:courier|carrier)|shipment information|tracking information|verzonden|verstuurd|overgedragen|onderweg|afgehaald|gegevens ontvangen|exp[ée]di[ée]|remis|confi[ée]|en route|en camino|reparto|versandt|verschickt|[üu]bergeben|unterwegs|abgeholt|enviado|entregado al transportador|spedito|consegnato al (?:corriere|trasportatore)|in viaggio|wys[łl]ano|nadano|w tranzycie|w drodze|odesl[aá]no|p[řr]ed[aá]no|v tranzit|na cest[ěe]|skickad|[öo]verl[äa]mnad|under v[äa]g|poslano|oddano|v prometi|na poti|saadetud|[üu]le antud|teel|i[šs]si[ųu]sta|perduota|	kelyje|nos[uū]t[īi]ts|nodots|ce[ļl][aā]|feladva|[áa]tadva|[úu]ton/;
 	// A tracking code or shipping label being created is seller-side preparation, not a carrier
@@ -61,6 +82,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	// have to be recognised explicitly to keep "days in transit" from starting too early.
 	const labelCreatedPattern = /\b(?:tracking|shipment|shipping)?\s*(?:code|number|label|etikett\w*|etiquette\w*|etichetta|n[uú]mero|numero|num[eé]ro)\b[^\n]{0,40}\b(?:created|generated|issued|registered)\b|\b(?:aangemaakt|gegenereerd|aangemaakt|erstellt|ausgedruckt)\b|code de suivi cr[ée][ée]|\b(?:num[eé]ro de suivi|etiquette d['’]exp[ée]dition|exp[ée]dition cr[ée][ée]e?)\b|(?:sendungsnummer|sendungscode|versand(?:label|etikett)\w*|frachtbrief)\s+(?:erstellt|ausgedruckt)|c[óo]digo de (?:seguimiento|rastreo)\s+(?:creado|generado)|etiqueta de (?:env[ií]o|remesa)\s+(?:creada|generada)|codice di (?:tracciamento|spedizione)\s+(?:creato|generato)|etichetta di spedizione\s+(?:creata|generata)|c[óo]digo de (?:rastreamento|seguimento)\s+criado|etiqueta de (?:envio|remessa)\s+(?:criada|gerada)|numer przesy[łl]ki utworzon\w*|etykieta wysy[łl]kowa (?:utworzona|wygenerowana)|sledovac[íi] [čc][íi]slo vytvo[řr]en\w*|p[řr]epravn[íi] [šs][tíi]tek (?:vytvo[řr]en\w*|vyti[šs][tĕě]n\w*)|sledovacie [čc][íi]slo vytvoren[ée]|prepren[ýy] [šs][tíi]tok vytvoren[ýy]|sp[åa]rningsnummer (?:skapat|skapades)|fraktetikett (?:skapad|skapades)|[šs]tevilka za sledenje (?:ustvarjena|ustvarjena)|dostavna etiketa (?:ustvarjena|ustvarjena)|j[äa]lgimiskood (?:loodud|genereritud)|saadetise silt (?:loodud|genereritud)|sekimo numeris sukurtas|siuntimo etiket[ėe] sukurta|izseko[šs]anas numurs izveidots|s[ūu]t[īi]juma etiķete izveidota|kovet[ée]si sz[áa]m l[ée]trehozva|sz[áa]ll[íi]t[áa]si c[íi]mke l[ée]trehozva/;
 	let scanTimer;
+	let refreshTimer;
+	let lastNotificationState = new Map();
 
 	function loadSettings() {
 		try {
@@ -73,6 +96,62 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 
 	function saveSettings() {
 		localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+	}
+
+	function loadNotes() {
+		try {
+			const saved = JSON.parse(localStorage.getItem(NOTES_KEY) ?? '{}');
+			return saved && typeof saved === 'object' ? saved : {};
+		} catch {
+			return {};
+		}
+	}
+
+	function saveNotes() {
+		localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+	}
+
+	function applyTheme() {
+		document.documentElement.dataset.vintedParcelPilotTheme = settings.theme;
+	}
+
+	function startAutoRefresh() {
+		clearInterval(refreshTimer);
+		if (!settings.autoRefresh || location.pathname !== '/my_orders') return;
+		refreshTimer = setInterval(() => {
+			clearTrackingCache();
+			orderResults.clear();
+			document.querySelectorAll('[data-vinted-order-id], [data-vinted-loading-id]').forEach((row) => row.remove());
+			scheduleScan();
+		}, Math.max(1, Number(settings.refreshMinutes) || 10) * 60000);
+	}
+
+	function loadCachedOrder(orderId) {
+		try {
+			const cache = JSON.parse(localStorage.getItem(CACHE_KEY) ?? '{}');
+			const entry = cache[orderId];
+			if (!entry || Date.now() - entry.cachedAt > Number(settings.cacheMinutes) * 60000) return null;
+			return entry.tracking;
+		} catch {
+			return null;
+		}
+	}
+
+	function cacheOrder(orderId, tracking) {
+		try {
+			const cache = JSON.parse(localStorage.getItem(CACHE_KEY) ?? '{}');
+			cache[orderId] = { cachedAt: Date.now(), tracking };
+			const keys = Object.keys(cache);
+			for (const key of keys.slice(0, Math.max(0, keys.length - 100))) delete cache[key];
+			localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+		} catch (error) {
+			debugLog('Cache write failed', error);
+		}
+	}
+
+	function clearTrackingCache() {
+		localStorage.removeItem(CACHE_KEY);
+		orderResults.clear();
 	}
 
 	function debugLog(...args) {
@@ -673,6 +752,39 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			.vinted-tracking--delayed {
 				border-left-color: #b42318;
 				background: #fffaf9;
+			}
+			.vinted-tracking--stale:not(.vinted-tracking--delayed) {
+				border-left-color: #d5a400;
+				background: #fffdf5;
+			}
+			.vinted-tracking__note {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+				border-top: 1px solid #eef2f2;
+				padding-top: 8px;
+			}
+			.vinted-tracking__note input {
+				min-width: 120px;
+				flex: 1 1 180px;
+				padding: 6px 8px;
+				border: 1px solid #d5e1e1;
+				border-radius: 4px;
+				font: inherit;
+			}
+			.vinted-tracking__note button {
+				padding: 5px 9px;
+				border: 1px solid #c3dddd;
+				border-radius: 4px;
+				background: #eff8f8;
+				color: #007f84;
+				cursor: pointer;
+			}
+			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking-toolbar,
+			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking {
+				border-color: #435154;
+				background: #1d292b;
+				color: #edf5f5;
 			}
 			.vinted-tracking--compact {
 				padding: 8px 12px;
@@ -1373,6 +1485,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				|| (settings.filter === 'missing' && !hasTracking);
 			card.classList.toggle('vinted-tracking-card-hidden', !visible);
 		}
+		updateDashboard();
+		applySort();
 	}
 
 	function createToolbarGroupLabel(text) {
@@ -1380,6 +1494,109 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		label.className = 'vinted-tracking-toolbar__group-label';
 		label.textContent = text;
 		return label;
+	}
+
+	function getOrderRows() {
+		return [...document.querySelectorAll('[data-vinted-order-id]')];
+	}
+
+	function updateDashboard() {
+		const rows = getOrderRows();
+		const counts = { total: rows.length, active: 0, delayed: 0, delivered: 0, missing: 0, pickup: 0 };
+		for (const row of rows) {
+			const status = row.dataset.vintedStatus ?? 'unknown';
+			if (status === 'delivered') counts.delivered += 1;
+			else if (status === 'delayed') counts.delayed += 1;
+			else if (status === 'pickup') counts.pickup += 1;
+			else if (row.dataset.vintedHasTracking === 'true') counts.active += 1;
+			else counts.missing += 1;
+		}
+		const dashboard = document.querySelector('[data-vinted-tracking-dashboard]');
+		if (dashboard) dashboard.textContent = `${labels.dashboard}: ${counts.total} · ${labels.active}: ${counts.active} · ${labels.delayed}: ${counts.delayed} · ${labels.delivered}: ${counts.delivered} · ${labels.noTracking}: ${counts.missing}`;
+	}
+
+	function applySort() {
+		const rows = getOrderRows();
+		if (!rows.length || settings.sort === 'none') return;
+		const cards = rows.map((row) => row.parentElement).filter(Boolean);
+		const list = cards[0]?.parentElement;
+		if (!list) return;
+		const value = (row) => {
+			const tracking = orderResults.get(row.dataset.vintedOrderId);
+			if (settings.sort === 'carrier') return tracking?.carrier ?? '';
+			if (settings.sort === 'status') return row.dataset.vintedStatus ?? '';
+			if (settings.sort === 'updated') return Date.parse(tracking?.latestTimestamp ?? '') || 0;
+			if (settings.sort === 'estimate') return Date.parse(tracking?.estimatedDelivery ?? '') || Number.MAX_SAFE_INTEGER;
+			if (settings.sort === 'transit') return Date.parse(tracking?.shippedTimestamp ?? '') || Number.MAX_SAFE_INTEGER;
+			return '';
+		};
+		cards.sort((left, right) => {
+			const a = value(left.querySelector('[data-vinted-order-id]'));
+			const b = value(right.querySelector('[data-vinted-order-id]'));
+			return typeof a === 'number' ? a - b : String(a).localeCompare(String(b), pageLocale);
+		}).forEach((card) => list.append(card));
+	}
+
+	function exportOrders() {
+		const header = ['Product', 'Tracking ID', 'Carrier', 'Status', 'Latest update', 'Estimated delivery', 'Seller location', 'Note', 'Tags'];
+		const lines = [header];
+		for (const row of getOrderRows()) {
+			const tracking = orderResults.get(row.dataset.vintedOrderId) ?? {};
+			const product = getProductInfo(row.parentElement ?? row);
+			const note = notes[row.dataset.vintedOrderId] ?? {};
+			lines.push([product.name, tracking.code, tracking.carrier, tracking.statusLabel, tracking.latestMessage, tracking.estimatedDelivery, [tracking.sellerCity, tracking.sellerCountry].filter(Boolean).join(', '), note.text ?? '', (note.tags ?? []).join(', ')]);
+		}
+		const csv = lines.map((line) => line.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+		link.download = `vinted-parcelpilot-${new Date().toISOString().slice(0, 10)}.csv`;
+		link.click();
+		setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+	}
+
+	function requestNotificationPermission() {
+		if (!('Notification' in window)) return;
+		if (Notification.permission === 'default') void Notification.requestPermission();
+	}
+
+	function notifyStatusChange(orderId, tracking) {
+		if (!settings.notifications || !tracking?.status) return;
+		const previous = lastNotificationState.get(orderId);
+		lastNotificationState.set(orderId, tracking.status);
+		if (!previous || previous === tracking.status || !('Notification' in window) || Notification.permission !== 'granted') return;
+		new Notification(`Vinted ParcelPilot: ${tracking.statusLabel}`, {
+			body: tracking.latestMessage || tracking.code || labels.dashboard,
+			tag: `vinted-parcel-${orderId}`,
+		});
+	}
+
+	function addNoteEditor(row, orderId) {
+		if (row.querySelector('[data-vinted-note-editor]')) return;
+		const saved = notes[orderId] ?? { text: '', tags: [] };
+		const wrapper = document.createElement('div');
+		wrapper.dataset.vintedNoteEditor = 'true';
+		wrapper.className = 'vinted-tracking__note';
+		const input = document.createElement('input');
+		input.type = 'text';
+		input.value = saved.text ?? '';
+		input.placeholder = labels.notes;
+		input.setAttribute('aria-label', labels.notes);
+		const tags = document.createElement('input');
+		tags.type = 'text';
+		tags.value = (saved.tags ?? []).join(', ');
+		tags.placeholder = 'Tags';
+		tags.setAttribute('aria-label', 'Tags');
+		const save = document.createElement('button');
+		save.type = 'button';
+		save.textContent = labels.save;
+		save.addEventListener('click', () => {
+			notes[orderId] = { text: input.value.trim(), tags: tags.value.split(',').map((tag) => tag.trim()).filter(Boolean) };
+			saveNotes();
+			save.textContent = labels.copied;
+			setTimeout(() => { save.textContent = labels.save; }, 1200);
+		});
+		wrapper.append(input, tags, save);
+		row.append(wrapper);
 	}
 
 	function addToolbar(cards) {
@@ -1487,6 +1704,95 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			wrapper.append(input, document.createTextNode(label));
 			optionsGroup.append(wrapper);
 		}
+
+		const toolsGroup = document.createElement('div');
+		toolsGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__tools';
+		toolsGroup.append(createToolbarGroupLabel(labels.dashboard));
+		const dashboard = document.createElement('span');
+		dashboard.dataset.vintedTrackingDashboard = 'true';
+		toolsGroup.append(dashboard);
+		const exportButton = document.createElement('button');
+		exportButton.type = 'button';
+		exportButton.textContent = labels.export;
+		exportButton.addEventListener('click', exportOrders);
+		toolsGroup.append(exportButton);
+		const refreshButton = document.createElement('button');
+		refreshButton.type = 'button';
+		refreshButton.textContent = labels.refresh;
+		refreshButton.addEventListener('click', () => {
+			clearTrackingCache();
+			getOrderRows().forEach((row) => row.remove());
+			scheduleScan();
+		});
+		toolsGroup.append(refreshButton);
+		const sort = document.createElement('select');
+		sort.setAttribute('aria-label', labels.sort);
+		[['none', labels.all], ['status', labels.shipmentStatus], ['updated', labels.latestUpdate], ['estimate', labels.estimatedDelivery], ['carrier', 'Carrier'], ['transit', labels.daysInTransit]].forEach(([value, text]) => {
+			const option = document.createElement('option');
+			option.value = value;
+			option.textContent = text;
+			option.selected = settings.sort === value;
+			sort.append(option);
+		});
+		sort.addEventListener('change', () => {
+			settings.sort = sort.value;
+			saveSettings();
+			applySort();
+		});
+		toolsGroup.append(sort);
+		const theme = document.createElement('select');
+		theme.setAttribute('aria-label', 'Theme');
+		[['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].forEach(([value, text]) => {
+			const option = document.createElement('option');
+			option.value = value;
+			option.textContent = text;
+			option.selected = settings.theme === value;
+			theme.append(option);
+		});
+		theme.addEventListener('change', () => {
+			settings.theme = theme.value;
+			saveSettings();
+			applyTheme();
+		});
+		toolsGroup.append(theme);
+		const refreshMinutes = document.createElement('input');
+		refreshMinutes.type = 'number';
+		refreshMinutes.min = '1';
+		refreshMinutes.max = '120';
+		refreshMinutes.value = settings.refreshMinutes;
+		refreshMinutes.title = `${labels.autoRefresh} (minutes)`;
+		refreshMinutes.addEventListener('change', () => {
+			settings.refreshMinutes = Math.min(120, Math.max(1, Number(refreshMinutes.value) || 10));
+			refreshMinutes.value = settings.refreshMinutes;
+			saveSettings();
+			startAutoRefresh();
+		});
+		toolsGroup.append(refreshMinutes);
+		const autoRefresh = document.createElement('label');
+		autoRefresh.className = 'vinted-tracking-toolbar__toggle';
+		const autoRefreshInput = document.createElement('input');
+		autoRefreshInput.type = 'checkbox';
+		autoRefreshInput.checked = settings.autoRefresh;
+		autoRefreshInput.addEventListener('change', () => {
+			settings.autoRefresh = autoRefreshInput.checked;
+			saveSettings();
+			startAutoRefresh();
+		});
+		autoRefresh.append(autoRefreshInput, document.createTextNode(labels.autoRefresh));
+		toolsGroup.append(autoRefresh);
+		const notification = document.createElement('label');
+		notification.className = 'vinted-tracking-toolbar__toggle';
+		const notificationInput = document.createElement('input');
+		notificationInput.type = 'checkbox';
+		notificationInput.checked = settings.notifications;
+		notificationInput.addEventListener('change', () => {
+			settings.notifications = notificationInput.checked;
+			saveSettings();
+			if (settings.notifications) requestNotificationPermission();
+		});
+		notification.append(notificationInput, document.createTextNode(labels.notification));
+		toolsGroup.append(notification);
+		toolbar.append(toolsGroup);
 
 		const list = anchor.parentElement;
 		const target = list.children.length > 1 ? list : anchor;
@@ -1607,7 +1913,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		row.dataset.vintedOrderId = orderId;
 		row.dataset.vintedStatus = tracking.status ?? 'unknown';
 		row.dataset.vintedHasTracking = String(Boolean(tracking.code || tracking.url));
-		row.className = `vinted-tracking${tracking.delayed ? ' vinted-tracking--delayed' : ''}${settings.compact ? ' vinted-tracking--compact' : ''}`;
+		const stale = tracking.latestTimestamp && Date.now() - Date.parse(tracking.latestTimestamp) > Number(settings.staleDays) * 86400000;
+		row.className = `vinted-tracking${tracking.delayed ? ' vinted-tracking--delayed' : ''}${stale ? ' vinted-tracking--stale' : ''}${settings.compact ? ' vinted-tracking--compact' : ''}`;
 		row.setAttribute('aria-label', `${labels.details}: ${tracking.statusLabel ?? labels.unknown}`);
 
 		// Top group: what was bought. Only the fields that exist are rendered, so any item shape
@@ -1734,10 +2041,13 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			for (const [termText, valueNode] of detailRows) detailsList.append(createDetailRow(termText, valueNode));
 			row.append(detailsList);
 		}
+		addNoteEditor(row, orderId);
+		notifyStatusChange(orderId, tracking);
 
 		card.append(row);
 		row.style.marginTop = '0';
 		wrapOrderCard(card);
+		updateDashboard();
 	}
 
 	function hasShipmentInfo(tracking) {
@@ -1841,6 +2151,11 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	async function loadOrder(orderId) {
 		if (orderResults.has(orderId)) return orderResults.get(orderId);
 		if (pending.has(orderId)) return pending.get(orderId);
+		const cached = loadCachedOrder(orderId);
+		if (cached) {
+			orderResults.set(orderId, cached);
+			return cached;
+		}
 
 		const fail = (reason) => {
 			debugLog('Tracking load failed', orderId, reason);
@@ -1880,7 +2195,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				const sellerLocation = await sellerLocationPromise;
 				tracking.sellerCountry = sellerLocation?.country ?? '';
 				tracking.sellerCity = sellerLocation?.city ?? '';
+				tracking.fetchedAt = new Date().toISOString();
 				orderResults.set(orderId, tracking);
+				cacheOrder(orderId, tracking);
 				return tracking;
 			} catch (error) {
 				debugLog('Tracking request threw', orderId, error);
@@ -1961,7 +2278,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				addTrackingRow(card, orderId, tracking);
 			}
 		}
-		if (settings.filter !== 'all') applyFilters();
+		applyFilters();
+		updateDashboard();
+		startAutoRefresh();
 		debugLog(`Scan finished: ${loadedOrders.length} orders, ${loadedOrders.filter(({ tracking }) => hasShipmentInfo(tracking)).length} with shipment data`);
 	}
 
@@ -1978,5 +2297,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		subtree: true,
 	});
 	addOrdersShortcut();
+	applyTheme();
 	scheduleScan();
+	startAutoRefresh();
 })();
