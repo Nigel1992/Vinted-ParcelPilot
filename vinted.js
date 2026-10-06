@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.4.0
+// @version      1.4.1
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -1097,9 +1097,6 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				font-size: 12px;
 			}
 			.vinted-tracking-toolbar {
-				position: sticky;
-				top: 12px;
-				z-index: 20;
 				box-sizing: border-box;
 				display: flex;
 				flex-wrap: wrap;
@@ -1127,8 +1124,48 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				border-radius: 6px;
 				background: #fbfdfd;
 			}
-			.vinted-tracking-toolbar__tools {
-				flex-basis: 100%;
+			.vinted-tracking-toolbar__options {
+				position: fixed;
+				top: 76px;
+				right: 16px;
+				z-index: 30;
+				display: block;
+				flex: 0 0 auto;
+				width: min(280px, calc(100vw - 32px));
+				padding: 0;
+				border-color: #b9d8d8;
+				background: #fff;
+				box-shadow: 0 8px 24px rgba(16, 40, 44, 0.18);
+			}
+			.vinted-tracking-toolbar__options > summary {
+				padding: 9px 12px;
+				color: #00666b;
+				cursor: pointer;
+				font-size: 12px;
+				font-weight: 700;
+				list-style: none;
+			}
+			.vinted-tracking-toolbar__options > summary::-webkit-details-marker {
+				display: none;
+			}
+			.vinted-tracking-toolbar__options > summary::after {
+				float: right;
+				content: '＋';
+				font-size: 16px;
+				line-height: 1;
+			}
+			.vinted-tracking-toolbar__options[open] > summary::after {
+				content: '−';
+			}
+			.vinted-tracking-toolbar__options-content {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+				padding: 0 10px 10px;
+			}
+			.vinted-tracking-toolbar__options-help {
+				color: #526568;
+				font-size: 12px;
 			}
 			.vinted-tracking-toolbar__group--stacked {
 				align-items: flex-start;
@@ -1262,10 +1299,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				.vinted-tracking__road::after { animation: none; }
 			}
 			@media (max-width: 600px) {
-				.vinted-tracking-toolbar {
-					top: 4px;
-					margin: 8px 0 12px;
-					padding: 8px;
+				.vinted-tracking-toolbar__options {
+					top: 12px;
+					right: 12px;
 				}
 				.vinted-tracking:not(.vinted-tracking--loading) { padding: 10px; }
 				.vinted-tracking__product-name { font-size: 13px; }
@@ -1785,10 +1821,19 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		shipmentGroup.append(filters);
 		toolbar.append(shipmentGroup);
 
-		const optionsGroup = document.createElement('div');
-		optionsGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__group--stacked';
-		optionsGroup.append(createToolbarGroupLabel(labels.options), createToolbarGroupHelp(labels.optionsHelp));
-		toolbar.append(optionsGroup);
+		const optionsGroup = document.createElement('details');
+		optionsGroup.className = 'vinted-tracking-toolbar__options';
+		optionsGroup.setAttribute('aria-label', labels.options);
+		const optionsSummary = document.createElement('summary');
+		optionsSummary.textContent = labels.options;
+		optionsGroup.append(optionsSummary);
+		const optionsContent = document.createElement('div');
+		optionsContent.className = 'vinted-tracking-toolbar__options-content';
+		const optionsHelp = createToolbarGroupHelp(labels.optionsHelp);
+		optionsHelp.className = 'vinted-tracking-toolbar__options-help';
+		optionsContent.append(optionsHelp);
+		optionsGroup.append(optionsContent);
+		document.body.append(optionsGroup);
 
 		for (const [key, label] of [['compact', labels.compact], ['showAnimation', labels.animation], ['showSellerLocation', labels.seller], ['showCarrierLogo', labels.logo], ['debug', labels.debug]]) {
 			const wrapper = document.createElement('label');
@@ -1816,7 +1861,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				scheduleScan();
 			});
 			wrapper.append(input, document.createTextNode(label));
-			optionsGroup.append(wrapper);
+			optionsContent.append(wrapper);
 		}
 
 		const toolsGroup = document.createElement('div');

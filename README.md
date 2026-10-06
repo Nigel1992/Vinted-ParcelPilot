@@ -8,7 +8,9 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.4.0
+## What's new in 1.4.1
+
+Compared with 1.4.0, this patch keeps the main toolbar in its normal page position and turns only **Options** into a compact floating menu. It stays available while scrolling and opens only when needed, so it does not permanently cover order content.
 
 Compared with 1.3.0, this release:
 
