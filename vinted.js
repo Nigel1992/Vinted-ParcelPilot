@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.0
+// @version      1.5.1
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -1141,7 +1141,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			}
 			.vinted-tracking-toolbar__options {
 				position: fixed;
-				right: 18px;
+				left: 18px;
 				bottom: 18px;
 				z-index: 30;
 				display: block;
@@ -1345,7 +1345,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			}
 			@media (max-width: 600px) {
 				.vinted-tracking-toolbar__options {
-					right: 10px;
+					left: 10px;
 					bottom: 10px;
 					width: min(248px, calc(100vw - 20px));
 				}
