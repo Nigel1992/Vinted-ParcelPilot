@@ -8,7 +8,13 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.2.0
+## What's new in 1.2.1
+
+Compared with 1.2.0, this patch improves local notes and tags:
+
+- Notes use a readable multi-line field with stronger contrast and visible focus styling.
+- Notes and tags are saved automatically while typing, with the button still available for immediate saving.
+- Dark mode now gives note and tag fields their own readable background, text and placeholder colours.
 
 Compared with 1.1.0, this release adds:
 

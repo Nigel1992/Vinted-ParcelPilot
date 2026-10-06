@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.2.0
+// @version      1.2.1
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -72,6 +72,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		autoRefresh: language === 'nl' ? 'Auto vernieuwen' : 'Auto refresh',
 		notes: language === 'nl' ? 'Notitie' : 'Note',
 		save: language === 'nl' ? 'Opslaan' : 'Save',
+		saved: language === 'nl' ? 'Opgeslagen' : 'Saved',
 		stale: language === 'nl' ? 'Geen update' : 'No recent update',
 		notification: language === 'nl' ? 'Meldingen' : 'Notifications',
 	});
@@ -84,6 +85,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	let scanTimer;
 	let refreshTimer;
 	let lastNotificationState = new Map();
+	const noteSaveTimers = new Map();
 
 	function loadSettings() {
 		try {
@@ -109,6 +111,22 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 
 	function saveNotes() {
 		localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+	}
+
+	function saveOrderNote(orderId, text, tagText) {
+		notes[orderId] = {
+			text: text.trim(),
+			tags: tagText.split(',').map((tag) => tag.trim()).filter(Boolean),
+		};
+		saveNotes();
+	}
+
+	function scheduleNoteSave(orderId, text, tagText) {
+		clearTimeout(noteSaveTimers.get(orderId));
+		noteSaveTimers.set(orderId, setTimeout(() => {
+			saveOrderNote(orderId, text, tagText);
+			noteSaveTimers.delete(orderId);
+		}, 350));
 	}
 
 	function applyTheme() {
@@ -764,13 +782,33 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				border-top: 1px solid #eef2f2;
 				padding-top: 8px;
 			}
-			.vinted-tracking__note input {
+			.vinted-tracking__note input,
+			.vinted-tracking__note textarea {
+				box-sizing: border-box;
 				min-width: 120px;
 				flex: 1 1 180px;
 				padding: 6px 8px;
-				border: 1px solid #d5e1e1;
+				border: 1px solid #8da4a6;
 				border-radius: 4px;
-				font: inherit;
+				background: #fff;
+				color: #172326;
+				font: 14px/1.4 sans-serif;
+				opacity: 1;
+			}
+			.vinted-tracking__note textarea {
+				min-height: 38px;
+				resize: vertical;
+			}
+			.vinted-tracking__note input::placeholder,
+			.vinted-tracking__note textarea::placeholder {
+				color: #526568;
+				opacity: 1;
+			}
+			.vinted-tracking__note input:focus,
+			.vinted-tracking__note textarea:focus {
+				border-color: #007782;
+				outline: 2px solid rgba(0, 119, 130, 0.22);
+				outline-offset: 1px;
 			}
 			.vinted-tracking__note button {
 				padding: 5px 9px;
@@ -785,6 +823,16 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				border-color: #435154;
 				background: #1d292b;
 				color: #edf5f5;
+			}
+			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note input,
+			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note textarea {
+				border-color: #718487;
+				background: #263638;
+				color: #f3f8f8;
+			}
+			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note input::placeholder,
+			[data-vinted-parcelpilot-theme="dark"] .vinted-tracking__note textarea::placeholder {
+				color: #b8c8c9;
 			}
 			.vinted-tracking--compact {
 				padding: 8px 12px;
@@ -1576,11 +1624,11 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		const wrapper = document.createElement('div');
 		wrapper.dataset.vintedNoteEditor = 'true';
 		wrapper.className = 'vinted-tracking__note';
-		const input = document.createElement('input');
-		input.type = 'text';
+		const input = document.createElement('textarea');
 		input.value = saved.text ?? '';
 		input.placeholder = labels.notes;
 		input.setAttribute('aria-label', labels.notes);
+		input.rows = 1;
 		const tags = document.createElement('input');
 		tags.type = 'text';
 		tags.value = (saved.tags ?? []).join(', ');
@@ -1589,10 +1637,14 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		const save = document.createElement('button');
 		save.type = 'button';
 		save.textContent = labels.save;
+		const queueSave = () => scheduleNoteSave(orderId, input.value, tags.value);
+		input.addEventListener('input', queueSave);
+		tags.addEventListener('input', queueSave);
 		save.addEventListener('click', () => {
-			notes[orderId] = { text: input.value.trim(), tags: tags.value.split(',').map((tag) => tag.trim()).filter(Boolean) };
-			saveNotes();
-			save.textContent = labels.copied;
+			clearTimeout(noteSaveTimers.get(orderId));
+			noteSaveTimers.delete(orderId);
+			saveOrderNote(orderId, input.value, tags.value);
+			save.textContent = labels.saved;
 			setTimeout(() => { save.textContent = labels.save; }, 1200);
 		});
 		wrapper.append(input, tags, save);
