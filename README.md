@@ -8,9 +8,15 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.4.1
+## What's new in 1.5.0
 
-Compared with 1.4.0, this patch keeps the main toolbar in its normal page position and turns only **Options** into a compact floating menu. It stays available while scrolling and opens only when needed, so it does not permanently cover order content.
+Compared with 1.4.1, this release:
+
+- Adds clear **Notitie** and **Tags** labels above the local fields.
+- Places the overview and sorting controls in a full horizontal row below the two status panels.
+- Makes the Options panel permanently visible as a compact, highlighted floating card that follows the page while scrolling without covering the main toolbar.
+
+The main toolbar remains in its normal page position. The Options card stays visible while scrolling and remains compact so it does not cover the main order content.
 
 Compared with 1.3.0, this release:
 
