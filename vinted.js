@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.3.0
+// @version      1.4.0
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -74,6 +74,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		parcelFilterHelp: language === 'nl' ? 'Filter op de status van het pakket' : 'Filter by parcel status',
 		optionsHelp: language === 'nl' ? 'Weergave en laadopties' : 'Display and loading options',
 		toolsHelp: language === 'nl' ? 'Overzicht, sorteren en hulpmiddelen' : 'Overview, sorting and tools',
+		floatingToolbar: language === 'nl' ? 'ParcelPilot-menu' : 'ParcelPilot menu',
 		export: language === 'nl' ? 'Exporteer CSV' : 'Export CSV',
 		refresh: language === 'nl' ? 'Nu vernieuwen' : 'Refresh now',
 		autoRefresh: language === 'nl' ? 'Auto vernieuwen' : 'Auto refresh',
@@ -216,7 +217,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	}
 
 	function collectTracking(data) {
-		const result = { code: '', url: '', carrier: '', carrierLogo: '', latestMessage: '', latestTimestamp: '', latestLocation: '', currentLocation: '', estimatedDelivery: '', shippedTimestamp: '', status: 'unknown', statusLabel: labels.unknown, delayed: false };
+		const result = { code: '', url: '', carrier: '', carrierLogo: '', latestMessage: '', latestTimestamp: '', latestLocation: '', currentLocation: '', estimatedDelivery: '', estimatedTimestamp: '', shippedTimestamp: '', status: 'unknown', statusLabel: labels.unknown, delayed: false };
 		const visited = new WeakSet();
 
 		function walk(value) {
@@ -396,6 +397,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				}
 			}
 			if (d && !Number.isNaN(d.getTime())) {
+				result.estimatedTimestamp = d.toISOString();
 				try {
 					estimated = new Intl.DateTimeFormat(pageLocale, { dateStyle: 'medium' }).format(d);
 				} catch (e) {
@@ -1095,20 +1097,27 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				font-size: 12px;
 			}
 			.vinted-tracking-toolbar {
+				position: sticky;
+				top: 12px;
+				z-index: 20;
 				box-sizing: border-box;
 				display: flex;
 				flex-wrap: wrap;
 				align-items: flex-start;
 				gap: 8px 20px;
-				margin: 12px 0;
-				padding: 10px 12px;
-				border: 1px solid #dde7e7;
-				border-radius: 6px;
-				background: #fff;
+				width: min(100%, 1180px);
+				margin: 12px auto 16px;
+				padding: 12px;
+				border: 1px solid #cbdada;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.97);
 				color: #293335;
 				font: 13px/1.4 sans-serif;
+				box-shadow: 0 8px 24px rgba(16, 40, 44, 0.12);
+				backdrop-filter: blur(8px);
 			}
 			.vinted-tracking-toolbar__group {
+				flex: 1 1 210px;
 				display: flex;
 				flex-wrap: wrap;
 				align-items: center;
@@ -1117,6 +1126,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				border: 1px solid #e1e9e9;
 				border-radius: 6px;
 				background: #fbfdfd;
+			}
+			.vinted-tracking-toolbar__tools {
+				flex-basis: 100%;
 			}
 			.vinted-tracking-toolbar__group--stacked {
 				align-items: flex-start;
@@ -1250,6 +1262,11 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				.vinted-tracking__road::after { animation: none; }
 			}
 			@media (max-width: 600px) {
+				.vinted-tracking-toolbar {
+					top: 4px;
+					margin: 8px 0 12px;
+					padding: 8px;
+				}
 				.vinted-tracking:not(.vinted-tracking--loading) { padding: 10px; }
 				.vinted-tracking__product-name { font-size: 13px; }
 				.vinted-tracking__bar { gap: 6px; }
@@ -1595,17 +1612,33 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		if (!list) return;
 		const value = (row) => {
 			const tracking = orderResults.get(row.dataset.vintedOrderId);
-			if (settings.sort === 'carrier') return tracking?.carrier ?? '';
-			if (settings.sort === 'status') return row.dataset.vintedStatus ?? '';
-			if (settings.sort === 'updated') return Date.parse(tracking?.latestTimestamp ?? '') || 0;
-			if (settings.sort === 'estimate') return Date.parse(tracking?.estimatedDelivery ?? '') || Number.MAX_SAFE_INTEGER;
-			if (settings.sort === 'transit') return Date.parse(tracking?.shippedTimestamp ?? '') || Number.MAX_SAFE_INTEGER;
-			return '';
+			if (settings.sort === 'carrier') return { value: tracking?.carrier ?? '', missing: !tracking?.carrier };
+			if (settings.sort === 'status') {
+				const statusRank = { delayed: 0, pickup: 1, active: 2, label: 3, unknown: 4, delivered: 5 };
+				const status = row.dataset.vintedStatus ?? 'unknown';
+				return { value: statusRank[status] ?? statusRank.unknown, missing: false };
+			}
+			if (settings.sort === 'updated') {
+				const timestamp = Date.parse(tracking?.latestTimestamp ?? '');
+				return { value: Number.isNaN(timestamp) ? 0 : timestamp, missing: Number.isNaN(timestamp) };
+			}
+			if (settings.sort === 'estimate') {
+				const timestamp = Date.parse(tracking?.estimatedTimestamp ?? '');
+				return { value: Number.isNaN(timestamp) ? 0 : timestamp, missing: Number.isNaN(timestamp) };
+			}
+			if (settings.sort === 'transit') {
+				const timestamp = Date.parse(tracking?.shippedTimestamp ?? '');
+				return { value: Number.isNaN(timestamp) ? 0 : timestamp, missing: Number.isNaN(timestamp) };
+			}
+			return { value: '', missing: true };
 		};
 		cards.sort((left, right) => {
 			const a = value(left.querySelector('[data-vinted-order-id]'));
 			const b = value(right.querySelector('[data-vinted-order-id]'));
-			const comparison = typeof a === 'number' ? a - b : String(a).localeCompare(String(b), pageLocale);
+			if (a.missing !== b.missing) return a.missing ? 1 : -1;
+			const comparison = typeof a.value === 'number'
+				? a.value - b.value
+				: String(a.value).localeCompare(String(b.value), pageLocale);
 			return settings.sortDirection === 'desc' ? -comparison : comparison;
 		}).forEach((card) => list.append(card));
 	}
@@ -1689,7 +1722,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		toolbar.dataset.vintedTrackingToolbar = 'true';
 		toolbar.className = 'vinted-tracking-toolbar';
 		toolbar.setAttribute('role', 'group');
-		toolbar.setAttribute('aria-label', labels.settings);
+		toolbar.setAttribute('aria-label', labels.floatingToolbar);
 
 		const orderGroup = document.createElement('div');
 		orderGroup.className = 'vinted-tracking-toolbar__group vinted-tracking-toolbar__group--stacked';

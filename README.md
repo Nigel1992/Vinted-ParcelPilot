@@ -8,7 +8,14 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.3.0
+## What's new in 1.4.0
+
+Compared with 1.3.0, this release:
+
+- Turns the controls into a floating sticky menu that remains available while scrolling.
+- Gives the menu a clearer card layout, spacing, shadow and mobile-friendly behaviour.
+- Makes every sort option respond to ascending and descending direction, including parcel status.
+- Sorts delivery estimates using their underlying date instead of the localized display text, and keeps missing values at the bottom.
 
 Compared with 1.2.2, this release improves the toolbar:
 
