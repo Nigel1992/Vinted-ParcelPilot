@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.2
+// @version      1.5.3
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -792,10 +792,11 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			}
 			.vinted-tracking__note-field {
 				display: flex;
-				flex: 1 1 220px;
+				flex: 0 1 280px;
 				flex-direction: column;
 				gap: 3px;
-				min-width: 0;
+				width: min(280px, 100%);
+				min-width: 150px;
 			}
 			.vinted-tracking__note-label {
 				color: #526568;
@@ -807,8 +808,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			.vinted-tracking__note input,
 			.vinted-tracking__note textarea {
 				box-sizing: border-box;
-				min-width: 120px;
-				flex: 1 1 180px;
+				width: 100%;
+				min-width: 0;
+				max-width: 100%;
 				padding: 6px 8px;
 				border: 1px solid #8da4a6;
 				border-radius: 4px;
@@ -818,18 +820,18 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				opacity: 1;
 			}
 			.vinted-tracking__note textarea {
-				min-height: 38px;
-				height: 38px;
+				min-height: 34px;
+				height: 34px;
+				max-height: 180px;
 				overflow-y: hidden;
 				resize: vertical;
 			}
 			.vinted-tracking__note-field--tags {
-				flex: 1 1 160px;
+				flex: 0 1 220px;
+				width: min(220px, 100%);
 			}
 			.vinted-tracking__note-field--tags input {
 				min-width: 0;
-				width: 100%;
-				max-width: 100%;
 			}
 			.vinted-tracking__note input::placeholder,
 			.vinted-tracking__note textarea::placeholder {
@@ -1783,7 +1785,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		input.rows = 1;
 		input.addEventListener('mousedown', (event) => event.stopPropagation());
 		input.addEventListener('click', (event) => event.stopPropagation());
-		const noteField = document.createElement('label');
+		const noteField = document.createElement('div');
 		noteField.className = 'vinted-tracking__note-field';
 		const noteLabel = document.createElement('span');
 		noteLabel.className = 'vinted-tracking__note-label';
@@ -1796,7 +1798,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		tags.setAttribute('aria-label', 'Tags');
 		tags.addEventListener('mousedown', (event) => event.stopPropagation());
 		tags.addEventListener('click', (event) => event.stopPropagation());
-		const tagsField = document.createElement('label');
+		const tagsField = document.createElement('div');
 		tagsField.className = 'vinted-tracking__note-field vinted-tracking__note-field--tags';
 		const tagsLabel = document.createElement('span');
 		tagsLabel.className = 'vinted-tracking__note-label';
@@ -1805,14 +1807,19 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		const save = document.createElement('button');
 		save.type = 'button';
 		save.textContent = labels.save;
+		const stopCardEvents = (event) => event.stopPropagation();
+		for (const eventName of ['pointerdown', 'mousedown', 'click', 'focus', 'focusin', 'input', 'keydown', 'keyup', 'change']) {
+			input.addEventListener(eventName, stopCardEvents);
+			tags.addEventListener(eventName, stopCardEvents);
+		}
 		const queueSave = () => scheduleNoteSave(orderId, input.value, tags.value);
 		const resizeNote = () => {
 			input.style.height = 'auto';
-			input.style.height = `${Math.max(38, input.scrollHeight)}px`;
+			input.style.height = `${Math.min(180, Math.max(34, input.scrollHeight))}px`;
 		};
 		const resizeTags = () => {
 			const length = Math.max(12, tags.value.length + 1);
-			tags.style.width = `${Math.min(48, length)}ch`;
+			tags.style.width = `${Math.min(32, length)}ch`;
 		};
 		input.addEventListener('input', queueSave);
 		input.addEventListener('input', resizeNote);

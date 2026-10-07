@@ -8,7 +8,13 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.5.2
+## What's new in 1.5.3
+
+Compared with 1.5.2, this patch:
+
+- Makes Notitie and Tags compact fields instead of letting them expand across the whole order card.
+- Keeps the Notitie field auto-growing only as far as its content requires, with a practical maximum height.
+- Prevents Vinted's order-card event handlers from receiving typing, focus and pointer events from Tags and Notitie, so focus stays in the field while typing.
 
 Compared with 1.5.1, this patch:
 
