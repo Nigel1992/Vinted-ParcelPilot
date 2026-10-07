@@ -1,7 +1,7 @@
 # Vinted ParcelPilot
 
 [![GreasyFork](https://img.shields.io/badge/Install-GreasyFork-670000?logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
-[![Version](https://img.shields.io/badge/version-1.5.8-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+[![Version](https://img.shields.io/badge/version-1.5.9-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![Userscript](https://img.shields.io/badge/type-Userscript-orange)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![License](https://img.shields.io/badge/license-Custom%20Non--Commercial-lightgrey)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 
@@ -620,6 +620,12 @@ Avoid posting personal information or complete tracking details publicly.
 ---
 
 ## 📝 Changelog
+
+### 1.5.9
+
+* Cancelled and refunded orders now have their own dashboard categories instead of counting toward "No tracking".
+* Orders that Vinted marks as cancelled ("Order cancelled") or refunded ("Refund processed") are detected from the card status line in every UI language.
+* The dashboard overview and FILTERS section include separate Cancelled and Refund processed entries.
 
 ### 1.5.8
 

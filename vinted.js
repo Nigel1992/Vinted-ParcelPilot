@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.8
+// @version      1.5.9
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -46,22 +46,22 @@
 	const language = pageLocale.toLowerCase().split(/[-_]/)[0];
 	const apiLocale = pageLocale.replace('_', '-');
 	const translations = {
-en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'Latest update', estimatedDelivery: 'Estimated delivery', sellerLocation: 'Seller location', location: 'Location', myOrders: 'My orders', loading: 'Loading tracking information…', unavailable: 'Tracking code unavailable', notShipped: 'Not shipped yet', loadFailed: 'Could not load tracking', retry: 'Retry', copy: 'Copy', copied: 'Copied', all: 'All', active: 'On the way', delayed: 'Delayed', delivered: 'Delivered', noTracking: 'No tracking', compact: 'Compact', animation: 'Animation', seller: 'Seller location', logo: 'Carrier logos', debug: 'Debug', settings: 'ParcelPilot settings', inTransit: 'On the way', readyForPickup: 'Ready for pickup', labelCreated: 'Label created', exception: 'Issue', unknown: 'Unknown', daysInTransit: 'days in transit', dayInTransit: 'day in transit', details: 'Delivery details', orderStatus: 'Order status', shipmentStatus: 'Parcel status', options: 'Options', orderStatusUnavailable: 'Not found on this page', updatedAgo: 'updated', overdue: 'Delivery estimate passed' },
-		nl: { trackingId: 'Tracking-ID', trackingPage: 'Trackingpagina', latestUpdate: 'Laatste update', estimatedDelivery: 'Verwachte bezorging', sellerLocation: 'Locatie verkoper', location: 'Locatie', myOrders: 'Mijn bestellingen', loading: 'Trackinginformatie ophalen…', unavailable: 'Trackingcode niet beschikbaar', notShipped: 'Nog niet verzonden', loadFailed: 'Tracking kon niet worden geladen', retry: 'Opnieuw', copy: 'Kopieer', copied: 'Gekopieerd', all: 'Alles', active: 'Onderweg', delayed: 'Vertraagd', delivered: 'Afgeleverd', noTracking: 'Geen tracking', compact: 'Compact', animation: 'Animatie', seller: 'Verkoperlocatie', logo: 'Vervoerderslogo’s', debug: 'Debug', settings: 'ParcelPilot-instellingen', inTransit: 'Onderweg', readyForPickup: 'Afhaalpunt', labelCreated: 'Label aangemaakt', exception: 'Probleem', unknown: 'Onbekend', daysInTransit: 'dagen onderweg', dayInTransit: 'dag onderweg', details: 'Bezorggegevens', orderStatus: 'Bestelstatus', shipmentStatus: 'Zendstatus', options: 'Opties', orderStatusUnavailable: 'Niet gevonden op deze pagina', updatedAgo: 'bijgewerkt', overdue: 'Bezorgschatting verlopen' },
-		fr: { trackingId: 'Numéro de suivi', trackingPage: 'Page de suivi', latestUpdate: 'Dernière mise à jour', estimatedDelivery: 'Livraison estimée', sellerLocation: 'Lieu du vendeur', location: 'Lieu', myOrders: 'Mes commandes', loading: 'Récupération des informations de suivi…', unavailable: 'Numéro de suivi indisponible', notShipped: 'Pas encore expédié', loadFailed: 'Impossible de charger le suivi', retry: 'Réessayer', copy: 'Copier', copied: 'Copié', all: 'Tout', active: 'En route', delayed: 'Retardé', delivered: 'Livré', noTracking: 'Sans suivi', compact: 'Compact', animation: 'Animation', seller: 'Lieu du vendeur', logo: 'Logos des transporteurs', debug: 'Débogage', settings: 'Paramètres de ParcelPilot', inTransit: 'En route', readyForPickup: 'Prêt à être retiré', labelCreated: 'Étiquette créée', exception: 'Problème', unknown: 'Inconnu', daysInTransit: 'jours de transport', dayInTransit: 'jour de transport', details: 'Détails de livraison', orderStatus: 'Statut de la commande', shipmentStatus: 'Statut du colis', options: 'Options', orderStatusUnavailable: 'Introuvable sur cette page', updatedAgo: 'mis à jour', overdue: 'Estimation de livraison dépassée' },
-		et: { trackingId: 'Jälgimiskood', trackingPage: 'Jälgimisleht', latestUpdate: 'Viimane uuendus', estimatedDelivery: 'Eeldatav saabumine', sellerLocation: 'Müüja asukoht', location: 'Asukoht', myOrders: 'Minu tellimused', loading: 'Jälgimisandmete laadimine…', unavailable: 'Jälgimiskood pole saadaval', notShipped: 'Pole veel saadetud', loadFailed: 'Jälgimise laadimine ebaõnnestus', retry: 'Proovi uuesti', copy: 'Kopeeri', copied: 'Kopeeritud', all: 'Kõik', active: 'Teel', delayed: 'Hilinenud', delivered: 'Kohale jõudnud', noTracking: 'Jälgimiseta', compact: 'Kompaktne', animation: 'Animatsioon', seller: 'Müüja asukoht', logo: 'Transpordiettevõtete logod', debug: 'Silumine', settings: 'ParcelPilot seaded', inTransit: 'Teel', readyForPickup: 'Valmis kättevõtuks', labelCreated: 'Etikett loodud', exception: 'Probleem', unknown: 'Tundmatu', daysInTransit: 'päeva liikumisel', dayInTransit: 'päev liikumisel', details: 'Tarneandmed', orderStatus: 'Tellimuse staatus', shipmentStatus: 'Saadetise staatus', options: 'Valikud', orderStatusUnavailable: 'Sellel lehel ei leitud', updatedAgo: 'uuendatud', overdue: 'Kohaletoimetamise hinnang möödus' },
-		es: { trackingId: 'Código de seguimiento', trackingPage: 'Página de seguimiento', latestUpdate: 'Última actualización', estimatedDelivery: 'Entrega estimada', sellerLocation: 'Ubicación del vendedor', location: 'Ubicación', myOrders: 'Mis pedidos', loading: 'Cargando información de seguimiento…', unavailable: 'Código de seguimiento no disponible', notShipped: 'Aún no enviado', loadFailed: 'No se pudo cargar el seguimiento', retry: 'Reintentar', copy: 'Copiar', copied: 'Copiado', all: 'Todos', active: 'En camino', delayed: 'Retrasado', delivered: 'Entregado', noTracking: 'Sin seguimiento', compact: 'Compacto', animation: 'Animación', seller: 'Ubicación del vendedor', logo: 'Logotipos de transportistas', debug: 'Depuración', settings: 'Ajustes de ParcelPilot', inTransit: 'En camino', readyForPickup: 'Listo para recoger', labelCreated: 'Etiqueta creada', exception: 'Incidencia', unknown: 'Desconocido', daysInTransit: 'días en tránsito', dayInTransit: 'día en tránsito', details: 'Detalles de entrega', orderStatus: 'Estado del pedido', shipmentStatus: 'Estado del paquete', options: 'Opciones', orderStatusUnavailable: 'No se encuentra en esta página', updatedAgo: 'actualizado', overdue: 'Entrega estimada superada' },
-		lt: { trackingId: 'Siuntos sekimo numeris', trackingPage: 'Siuntos sekimo puslapis', latestUpdate: 'Paskutinis atnaujinimas', estimatedDelivery: 'Numatomas pristatymas', sellerLocation: 'Pardavėjo vieta', location: 'Vieta', myOrders: 'Mano užsakymai', loading: 'Įkeliama siuntos sekimo informacija…', unavailable: 'Sekimo numeris nepasiekiamas', notShipped: 'Dar neišsiųsta', loadFailed: 'Nepavyko įkelti sekimo duomenų', retry: 'Bandyti dar kartą', copy: 'Kopijuoti', copied: 'Nukopijuota', all: 'Visos', active: 'Kelyje', delayed: 'Vėlinama', delivered: 'Pristatyta', noTracking: 'Be sekimo', compact: 'Kompaktinis', animation: 'Animacija', seller: 'Pardavėjo vieta', logo: 'Pervežėjų logotipai', debug: 'Derinimas', settings: 'ParcelPilot nustatymai', inTransit: 'Kelyje', readyForPickup: 'Paruošta atsiimti', labelCreated: 'Etiketė sukurta', exception: 'Problema', unknown: 'Nežinoma', daysInTransit: 'dienos kelje', dayInTransit: 'diena kelje', details: 'Pristatymo duomenys', orderStatus: 'Užsakymo būsena', shipmentStatus: 'Siuntos būsena', options: 'Parinktys', orderStatusUnavailable: 'Šiame puslapyje nerasta', updatedAgo: 'atnaujinta', overdue: 'Pristatymo prognozė praėjo' },
-		lv: { trackingId: 'Sūtījuma izsekošanas numurs', trackingPage: 'Izsekošanas lapa', latestUpdate: 'Pēdējais atjauninājums', estimatedDelivery: 'Paredzamā piegāde', sellerLocation: 'Pārdevēja atrašanās vieta', location: 'Atrašanās vieta', myOrders: 'Mani pasūtījumi', loading: 'Ielādē sūtījuma izsekošanas informāciju…', unavailable: 'Izsekošanas numurs nav pieejams', notShipped: 'Vēl nav nosūtīts', loadFailed: 'Neizdevās ielādēt izsekošanas datus', retry: 'Mēģināt vēlreiz', copy: 'Kopēt', copied: 'Kopēts', all: 'Visas', active: 'Ceļā', delayed: 'Kavējas', delivered: 'Piegādāts', noTracking: 'Bez izsekošanas', compact: 'Kompaktais', animation: 'Animācija', seller: 'Pārdevēja atrašanās vieta', logo: 'Pārvadātāju logotipi', debug: 'Atkļūnošana', settings: 'ParcelPilot iestatījumi', inTransit: 'Ceļā', readyForPickup: 'Gatavs paņemšanai', labelCreated: 'Etiķete izveidota', exception: 'Problēma', unknown: 'Nezināms', daysInTransit: 'dienas ceļā', dayInTransit: 'diena ceļā', details: 'Piegādes informācija', orderStatus: 'Pasūtījuma statuss', shipmentStatus: 'Sūtījuma statuss', options: 'Iespējas', orderStatusUnavailable: 'Nav atrasts šajā lapā', updatedAgo: 'atjaunināts', overdue: 'Piegādes prognoze izteikusi' },
-		de: { trackingId: 'Sendungsnummer', trackingPage: 'Sendungsverfolgung', latestUpdate: 'Letzte Aktualisierung', estimatedDelivery: 'Voraussichtliche Zustellung', sellerLocation: 'Standort des Verkäufers', location: 'Standort', myOrders: 'Meine Bestellungen', loading: 'Sendungsverfolgung wird geladen…', unavailable: 'Sendungsnummer nicht verfügbar', notShipped: 'Noch nicht versendet', loadFailed: 'Sendungsverfolgung konnte nicht geladen werden', retry: 'Erneut versuchen', copy: 'Kopieren', copied: 'Kopiert', all: 'Alle', active: 'Unterwegs', delayed: 'Verzögert', delivered: 'Zugestellt', noTracking: 'Ohne Tracking', compact: 'Kompakt', animation: 'Animation', seller: 'Standort des Verkäufers', logo: 'Versandlogos', debug: 'Debug', settings: 'ParcelPilot-Einstellungen', inTransit: 'Unterwegs', readyForPickup: 'Abholbereit', labelCreated: 'Label erstellt', exception: 'Problem', unknown: 'Unbekannt', daysInTransit: 'Tage unterwegs', dayInTransit: 'Tag unterwegs', details: 'Lieferdetails', orderStatus: 'Bestellstatus', shipmentStatus: 'Paketstatus', options: 'Optionen', orderStatusUnavailable: 'Auf dieser Seite nicht gefunden', updatedAgo: 'aktualisiert', overdue: 'Zustellschätzung überschritten' },
-		it: { trackingId: 'Codice di tracciamento', trackingPage: 'Pagina di tracciamento', latestUpdate: 'Ultimo aggiornamento', estimatedDelivery: 'Consegna prevista', sellerLocation: 'Posizione del venditore', location: 'Posizione', myOrders: 'I miei ordini', loading: 'Caricamento delle informazioni di tracciamento…', unavailable: 'Codice di tracciamento non disponibile', notShipped: 'Non ancora spedito', loadFailed: 'Impossibile caricare il tracciamento', retry: 'Riprova', copy: 'Copia', copied: 'Copiato', all: 'Tutti', active: 'In transito', delayed: 'In ritardo', delivered: 'Consegnato', noTracking: 'Senza tracciamento', compact: 'Compatto', animation: 'Animazione', seller: 'Posizione del venditore', logo: 'Loghi dei corrieri', debug: 'Debug', settings: 'Impostazioni di ParcelPilot', inTransit: 'In transito', readyForPickup: 'Pronto per il ritiro', labelCreated: 'Etichetta creata', exception: 'Problema', unknown: 'Sconosciuto', daysInTransit: 'giorni di transito', dayInTransit: 'giorno di transito', details: 'Dettagli di consegna', orderStatus: 'Stato dell’ordine', shipmentStatus: 'Stato del pacco', options: 'Opzioni', orderStatusUnavailable: 'Non trovato in questa pagina', updatedAgo: 'aggiornato', overdue: 'Stima di consegna superata' },
-		pt: { trackingId: 'Código de rastreamento', trackingPage: 'Página de rastreamento', latestUpdate: 'Última atualização', estimatedDelivery: 'Entrega prevista', sellerLocation: 'Localização do vendedor', location: 'Localização', myOrders: 'As minhas encomendas', loading: 'A carregar informações de rastreamento…', unavailable: 'Código de rastreamento indisponível', notShipped: 'Ainda não enviado', loadFailed: 'Não foi possível carregar o rastreamento', retry: 'Tentar novamente', copy: 'Copiar', copied: 'Copiado', all: 'Todos', active: 'Em trânsito', delayed: 'Atrasado', delivered: 'Entregue', noTracking: 'Sem rastreamento', compact: 'Compacto', animation: 'Animação', seller: 'Localização do vendedor', logo: 'Logótipos das transportadoras', debug: 'Depuração', settings: 'Definições do ParcelPilot', inTransit: 'Em trânsito', readyForPickup: 'Pronto para levantar', labelCreated: 'Etiqueta criada', exception: 'Problema', unknown: 'Desconhecido', daysInTransit: 'dias em trânsito', dayInTransit: 'dia em trânsito', details: 'Detalhes da entrega', orderStatus: 'Estado da encomenda', shipmentStatus: 'Estado do pacote', options: 'Opções', orderStatusUnavailable: 'Não encontrado nesta página', updatedAgo: 'atualizado', overdue: 'Estimativa de entrega ultrapassada' },
-		cs: { trackingId: 'Sledovací číslo', trackingPage: 'Sledování zásilky', latestUpdate: 'Poslední aktualizace', estimatedDelivery: 'Odhadované doručení', sellerLocation: 'Místo prodejce', location: 'Poloha', myOrders: 'Moje objednávky', loading: 'Načítají se informace o zásilce…', unavailable: 'Sledovací číslo není k dispozici', notShipped: 'Zatím neodesláno', loadFailed: 'Sledování se nepodařilo načíst', retry: 'Zkusit znovu', copy: 'Kopírovat', copied: 'Zkopírováno', all: 'Vše', active: 'Na cestě', delayed: 'Zpožděno', delivered: 'Doručeno', noTracking: 'Bez sledování', compact: 'Kompaktní', animation: 'Animace', seller: 'Místo prodejce', logo: 'Loga dopravců', debug: 'Ladění', settings: 'Nastavení ParcelPilot', inTransit: 'Na cestě', readyForPickup: 'Připraveno k vyzvednutí', labelCreated: 'Štítek vytvořen', exception: 'Problém', unknown: 'Neznámé', daysInTransit: 'dní v cestě', dayInTransit: 'den v cestě', details: 'Podrobnosti doručení', orderStatus: 'Stav objednávky', shipmentStatus: 'Stav zásilky', options: 'Možnosti', orderStatusUnavailable: 'Na této stránce nenalezeno', updatedAgo: 'aktualizováno', overdue: 'Termín doručení vypršel' },
-		sk: { trackingId: 'Sledovacie číslo', trackingPage: 'Sledovanie zásielky', latestUpdate: 'Posledná aktualizácia', estimatedDelivery: 'Odhadované doručenie', sellerLocation: 'Miesto predajcu', location: 'Poloha', myOrders: 'Moje objednávky', loading: 'Načítavajú sa informácie o zásielke…', unavailable: 'Sledovacie číslo nie je k dispozícii', notShipped: 'Zatiaľ neodoslané', loadFailed: 'Sledovanie sa nepodarilo načítať', retry: 'Skúsiť znova', copy: 'Kopírovať', copied: 'Skopírované', all: 'Všetko', active: 'Na ceste', delayed: 'Mešká', delivered: 'Doručené', noTracking: 'Bez sledovania', compact: 'Kompaktné', animation: 'Animácia', seller: 'Miesto predajcu', logo: 'Logá dopravcov', debug: 'Ladenie', settings: 'Nastavenia ParcelPilot', inTransit: 'Na ceste', readyForPickup: 'Pripravené na vyzdvihnutie', labelCreated: 'Štítok vytvorený', exception: 'Problém', unknown: 'Neznáme', daysInTransit: 'dní v ceste', dayInTransit: 'deň v ceste', details: 'Podrobnosti doručenia', orderStatus: 'Stav objednávky', shipmentStatus: 'Stav zásielky', options: 'Možnosti', orderStatusUnavailable: 'Na tejto stránke sa nenašlo', updatedAgo: 'aktualizované', overdue: 'Termín doručenia uplynul' },
-		pl: { trackingId: 'Numer przesyłki', trackingPage: 'Śledź przesyłkę', latestUpdate: 'Ostatnia aktualizacja', estimatedDelivery: 'Przewidywana dostawa', sellerLocation: 'Lokalizacja sprzedawcy', location: 'Lokalizacja', myOrders: 'Moje zamówienia', loading: 'Wczytywanie informacji o przesyłce…', unavailable: 'Numer przesyłki niedostępny', notShipped: 'Jeszcze nie wysłano', loadFailed: 'Nie udało się wczytać śledzenia', retry: 'Spróbuj ponownie', copy: 'Kopiuj', copied: 'Skopiowano', all: 'Wszystkie', active: 'W drodze', delayed: 'Opóźnione', delivered: 'Dostarczone', noTracking: 'Bez śledzenia', compact: 'Zwarty', animation: 'Animacja', seller: 'Lokalizacja sprzedawcy', logo: 'Logotypy przewoźników', debug: 'Tryb debugowania', settings: 'Ustawienia ParcelPilot', inTransit: 'W drodze', readyForPickup: 'Gotowe do odbioru', labelCreated: 'Etykieta utworzona', exception: 'Problem', unknown: 'Nieznany', daysInTransit: 'dni w trasie', dayInTransit: 'dzień w trasie', details: 'Szczegóły dostawy', orderStatus: 'Status zamówienia', shipmentStatus: 'Status przesyłki', options: 'Opcje', orderStatusUnavailable: 'Nie znaleziono na tej stronie', updatedAgo: 'zaktualizowano', overdue: 'Termin dostawy minął' },
-		sv: { trackingId: 'Spårningsnummer', trackingPage: 'Spåra paketet', latestUpdate: 'Senaste uppdateringen', estimatedDelivery: 'Beräknad leverans', sellerLocation: 'Säljarens plats', location: 'Plats', myOrders: 'Mina beställningar', loading: 'Hämtar spårningsinformation…', unavailable: 'Spårningsnummer saknas', notShipped: 'Inte skickat än', loadFailed: 'Kunde inte hämta spårningen', retry: 'Försök igen', copy: 'Kopiera', copied: 'Kopierat', all: 'Alla', active: 'Under väg', delayed: 'Försenad', delivered: 'Levererad', noTracking: 'Ingen spårning', compact: 'Kompakt', animation: 'Animation', seller: 'Säljarens plats', logo: 'Bärarlogos', debug: 'Felsökning', settings: 'ParcelPilot-inställningar', inTransit: 'Under väg', readyForPickup: 'Redo för hämtning', labelCreated: 'Etikett skapad', exception: 'Problem', unknown: 'Okänt', daysInTransit: 'dagar under väg', dayInTransit: 'dag under väg', details: 'Leveransdetaljer', orderStatus: 'Orderstatus', shipmentStatus: 'Paketstatus', options: 'Alternativ', orderStatusUnavailable: 'Hittades inte på den här sidan', updatedAgo: 'uppdaterad', overdue: 'Leveranstidsuppskattningen har passerat' },
-		sl: { trackingId: 'Številka za sledenje', trackingPage: 'Sledenje pošiljke', latestUpdate: 'Zadnja posodobitev', estimatedDelivery: 'Predvidena dostava', sellerLocation: 'Lokacija prodajalca', location: 'Lokacija', myOrders: 'Moja naročila', loading: 'Nalaganje podatkov za sledenje…', unavailable: 'Številka za sledenje ni na voljo', notShipped: 'Še ni poslano', loadFailed: 'Sledenja ni bilo mogoče naložiti', retry: 'Poskusi znova', copy: 'Kopiraj', copied: 'Kopirano', all: 'Vse', active: 'Na poti', delayed: 'Zamikšano', delivered: 'Dostavljeno', noTracking: 'Brez sledenja', compact: 'Zgoščeno', animation: 'Animacija', seller: 'Lokacija prodajalca', logo: 'Logotipi prevoznikov', debug: 'Razhroščevanje', settings: 'Nastavitve ParcelPilot', inTransit: 'Na poti', readyForPickup: 'Pripravljeno za prevzem', labelCreated: 'Etiketa ustvarjena', exception: 'Težava', unknown: 'Neznano', daysInTransit: 'dni na poti', dayInTransit: 'dan na poti', details: 'Podrobnosti dostave', orderStatus: 'Stanje naročila', shipmentStatus: 'Stanje pošiljke', options: 'Možnosti', orderStatusUnavailable: 'Ni najdeno na tej strani', updatedAgo: 'posodobljeno', overdue: 'Napovedana dostava je potekla' },
-		hu: { trackingId: 'Követési szám', trackingPage: 'Csomag nyomon követése', latestUpdate: 'Legutóbbi frissítés', estimatedDelivery: 'Várható kézbesítés', sellerLocation: 'Az eladó helye', location: 'Hely', myOrders: 'Rendeléseim', loading: 'A nyomon követési adatok betöltése…', unavailable: 'A követési szám nem érhető el', notShipped: 'Még nincs feladva', loadFailed: 'A nyomon követés nem tölthető be', retry: 'Újrapróbálkozás', copy: 'Másolás', copied: 'Másolva', all: 'Összes', active: 'Úton', delayed: 'Késésben', delivered: 'Kézbesítve', noTracking: 'Nyomkövetés nélkül', compact: 'Tömör', animation: 'Animáció', seller: 'Az eladó helye', logo: 'Futárszervezetek logói', debug: 'Hibakeresés', settings: 'ParcelPilot beállítások', inTransit: 'Úton', readyForPickup: 'Átvételre kész', labelCreated: 'Címke létrehozva', exception: 'Probléma', unknown: 'Ismeretlen', daysInTransit: 'nap az úton', dayInTransit: 'nap az úton', details: 'Szállítási adatok', orderStatus: 'Rendelés állapota', shipmentStatus: 'Csomag állapota', options: 'Beállítások', orderStatusUnavailable: 'Nem található ezen az oldalon', updatedAgo: 'frissítve', overdue: 'A kézbesítési becslés lejárt' },
+en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'Latest update', estimatedDelivery: 'Estimated delivery', sellerLocation: 'Seller location', location: 'Location', myOrders: 'My orders', loading: 'Loading tracking information…', unavailable: 'Tracking code unavailable', notShipped: 'Not shipped yet', loadFailed: 'Could not load tracking', retry: 'Retry', copy: 'Copy', copied: 'Copied', all: 'All', active: 'On the way', delayed: 'Delayed', delivered: 'Delivered', cancelled: 'Cancelled', refunded: 'Refund processed', noTracking: 'No tracking', compact: 'Compact', animation: 'Animation', seller: 'Seller location', logo: 'Carrier logos', debug: 'Debug', settings: 'ParcelPilot settings', inTransit: 'On the way', readyForPickup: 'Ready for pickup', labelCreated: 'Label created', exception: 'Issue', unknown: 'Unknown', daysInTransit: 'days in transit', dayInTransit: 'day in transit', details: 'Delivery details', orderStatus: 'Order status', shipmentStatus: 'Parcel status', options: 'Options', orderStatusUnavailable: 'Not found on this page', updatedAgo: 'updated', overdue: 'Delivery estimate passed' },
+		nl: { trackingId: 'Tracking-ID', trackingPage: 'Trackingpagina', latestUpdate: 'Laatste update', estimatedDelivery: 'Verwachte bezorging', sellerLocation: 'Locatie verkoper', location: 'Locatie', myOrders: 'Mijn bestellingen', loading: 'Trackinginformatie ophalen…', unavailable: 'Trackingcode niet beschikbaar', notShipped: 'Nog niet verzonden', loadFailed: 'Tracking kon niet worden geladen', retry: 'Opnieuw', copy: 'Kopieer', copied: 'Gekopieerd', all: 'Alles', active: 'Onderweg', delayed: 'Vertraagd', delivered: 'Afgeleverd', cancelled: 'Geannuleerd', refunded: 'Restitutie verwerkt', noTracking: 'Geen tracking', compact: 'Compact', animation: 'Animatie', seller: 'Verkoperlocatie', logo: 'Vervoerderslogo’s', debug: 'Debug', settings: 'ParcelPilot-instellingen', inTransit: 'Onderweg', readyForPickup: 'Afhaalpunt', labelCreated: 'Label aangemaakt', exception: 'Probleem', unknown: 'Onbekend', daysInTransit: 'dagen onderweg', dayInTransit: 'dag onderweg', details: 'Bezorggegevens', orderStatus: 'Bestelstatus', shipmentStatus: 'Zendstatus', options: 'Opties', orderStatusUnavailable: 'Niet gevonden op deze pagina', updatedAgo: 'bijgewerkt', overdue: 'Bezorgschatting verlopen' },
+		fr: { trackingId: 'Numéro de suivi', trackingPage: 'Page de suivi', latestUpdate: 'Dernière mise à jour', estimatedDelivery: 'Livraison estimée', sellerLocation: 'Lieu du vendeur', location: 'Lieu', myOrders: 'Mes commandes', loading: 'Récupération des informations de suivi…', unavailable: 'Numéro de suivi indisponible', notShipped: 'Pas encore expédié', loadFailed: 'Impossible de charger le suivi', retry: 'Réessayer', copy: 'Copier', copied: 'Copié', all: 'Tout', active: 'En route', delayed: 'Retardé', delivered: 'Livré', cancelled: 'Annulée', refunded: 'Remboursement effectué', noTracking: 'Sans suivi', compact: 'Compact', animation: 'Animation', seller: 'Lieu du vendeur', logo: 'Logos des transporteurs', debug: 'Débogage', settings: 'Paramètres de ParcelPilot', inTransit: 'En route', readyForPickup: 'Prêt à être retiré', labelCreated: 'Étiquette créée', exception: 'Problème', unknown: 'Inconnu', daysInTransit: 'jours de transport', dayInTransit: 'jour de transport', details: 'Détails de livraison', orderStatus: 'Statut de la commande', shipmentStatus: 'Statut du colis', options: 'Options', orderStatusUnavailable: 'Introuvable sur cette page', updatedAgo: 'mis à jour', overdue: 'Estimation de livraison dépassée' },
+		et: { trackingId: 'Jälgimiskood', trackingPage: 'Jälgimisleht', latestUpdate: 'Viimane uuendus', estimatedDelivery: 'Eeldatav saabumine', sellerLocation: 'Müüja asukoht', location: 'Asukoht', myOrders: 'Minu tellimused', loading: 'Jälgimisandmete laadimine…', unavailable: 'Jälgimiskood pole saadaval', notShipped: 'Pole veel saadetud', loadFailed: 'Jälgimise laadimine ebaõnnestus', retry: 'Proovi uuesti', copy: 'Kopeeri', copied: 'Kopeeritud', all: 'Kõik', active: 'Teel', delayed: 'Hilinenud', delivered: 'Kohale jõudnud', cancelled: 'Tühistatud', refunded: 'Tagasimakse töödeldud', noTracking: 'Jälgimiseta', compact: 'Kompaktne', animation: 'Animatsioon', seller: 'Müüja asukoht', logo: 'Transpordiettevõtete logod', debug: 'Silumine', settings: 'ParcelPilot seaded', inTransit: 'Teel', readyForPickup: 'Valmis kättevõtuks', labelCreated: 'Etikett loodud', exception: 'Probleem', unknown: 'Tundmatu', daysInTransit: 'päeva liikumisel', dayInTransit: 'päev liikumisel', details: 'Tarneandmed', orderStatus: 'Tellimuse staatus', shipmentStatus: 'Saadetise staatus', options: 'Valikud', orderStatusUnavailable: 'Sellel lehel ei leitud', updatedAgo: 'uuendatud', overdue: 'Kohaletoimetamise hinnang möödus' },
+		es: { trackingId: 'Código de seguimiento', trackingPage: 'Página de seguimiento', latestUpdate: 'Última actualización', estimatedDelivery: 'Entrega estimada', sellerLocation: 'Ubicación del vendedor', location: 'Ubicación', myOrders: 'Mis pedidos', loading: 'Cargando información de seguimiento…', unavailable: 'Código de seguimiento no disponible', notShipped: 'Aún no enviado', loadFailed: 'No se pudo cargar el seguimiento', retry: 'Reintentar', copy: 'Copiar', copied: 'Copiado', all: 'Todos', active: 'En camino', delayed: 'Retrasado', delivered: 'Entregado', cancelled: 'Cancelado', refunded: 'Reembolso procesado', noTracking: 'Sin seguimiento', compact: 'Compacto', animation: 'Animación', seller: 'Ubicación del vendedor', logo: 'Logotipos de transportistas', debug: 'Depuración', settings: 'Ajustes de ParcelPilot', inTransit: 'En camino', readyForPickup: 'Listo para recoger', labelCreated: 'Etiqueta creada', exception: 'Incidencia', unknown: 'Desconocido', daysInTransit: 'días en tránsito', dayInTransit: 'día en tránsito', details: 'Detalles de entrega', orderStatus: 'Estado del pedido', shipmentStatus: 'Estado del paquete', options: 'Opciones', orderStatusUnavailable: 'No se encuentra en esta página', updatedAgo: 'actualizado', overdue: 'Entrega estimada superada' },
+		lt: { trackingId: 'Siuntos sekimo numeris', trackingPage: 'Siuntos sekimo puslapis', latestUpdate: 'Paskutinis atnaujinimas', estimatedDelivery: 'Numatomas pristatymas', sellerLocation: 'Pardavėjo vieta', location: 'Vieta', myOrders: 'Mano užsakymai', loading: 'Įkeliama siuntos sekimo informacija…', unavailable: 'Sekimo numeris nepasiekiamas', notShipped: 'Dar neišsiųsta', loadFailed: 'Nepavyko įkelti sekimo duomenų', retry: 'Bandyti dar kartą', copy: 'Kopijuoti', copied: 'Nukopijuota', all: 'Visos', active: 'Kelyje', delayed: 'Vėlinama', delivered: 'Pristatyta', cancelled: 'Atšaukta', refunded: 'Pinigų grąžinimas apdorotas', noTracking: 'Be sekimo', compact: 'Kompaktinis', animation: 'Animacija', seller: 'Pardavėjo vieta', logo: 'Pervežėjų logotipai', debug: 'Derinimas', settings: 'ParcelPilot nustatymai', inTransit: 'Kelyje', readyForPickup: 'Paruošta atsiimti', labelCreated: 'Etiketė sukurta', exception: 'Problema', unknown: 'Nežinoma', daysInTransit: 'dienos kelje', dayInTransit: 'diena kelje', details: 'Pristatymo duomenys', orderStatus: 'Užsakymo būsena', shipmentStatus: 'Siuntos būsena', options: 'Parinktys', orderStatusUnavailable: 'Šiame puslapyje nerasta', updatedAgo: 'atnaujinta', overdue: 'Pristatymo prognozė praėjo' },
+		lv: { trackingId: 'Sūtījuma izsekošanas numurs', trackingPage: 'Izsekošanas lapa', latestUpdate: 'Pēdējais atjauninājums', estimatedDelivery: 'Paredzamā piegāde', sellerLocation: 'Pārdevēja atrašanās vieta', location: 'Atrašanās vieta', myOrders: 'Mani pasūtījumi', loading: 'Ielādē sūtījuma izsekošanas informāciju…', unavailable: 'Izsekošanas numurs nav pieejams', notShipped: 'Vēl nav nosūtīts', loadFailed: 'Neizdevās ielādēt izsekošanas datus', retry: 'Mēģināt vēlreiz', copy: 'Kopēt', copied: 'Kopēts', all: 'Visas', active: 'Ceļā', delayed: 'Kavējas', delivered: 'Piegādāts', cancelled: 'Atcelts', refunded: 'Naudas atmaksa apstrādāta', noTracking: 'Bez izsekošanas', compact: 'Kompaktais', animation: 'Animācija', seller: 'Pārdevēja atrašanās vieta', logo: 'Pārvadātāju logotipi', debug: 'Atkļūnošana', settings: 'ParcelPilot iestatījumi', inTransit: 'Ceļā', readyForPickup: 'Gatavs paņemšanai', labelCreated: 'Etiķete izveidota', exception: 'Problēma', unknown: 'Nezināms', daysInTransit: 'dienas ceļā', dayInTransit: 'diena ceļā', details: 'Piegādes informācija', orderStatus: 'Pasūtījuma statuss', shipmentStatus: 'Sūtījuma statuss', options: 'Iespējas', orderStatusUnavailable: 'Nav atrasts šajā lapā', updatedAgo: 'atjaunināts', overdue: 'Piegādes prognoze izteikusi' },
+		de: { trackingId: 'Sendungsnummer', trackingPage: 'Sendungsverfolgung', latestUpdate: 'Letzte Aktualisierung', estimatedDelivery: 'Voraussichtliche Zustellung', sellerLocation: 'Standort des Verkäufers', location: 'Standort', myOrders: 'Meine Bestellungen', loading: 'Sendungsverfolgung wird geladen…', unavailable: 'Sendungsnummer nicht verfügbar', notShipped: 'Noch nicht versendet', loadFailed: 'Sendungsverfolgung konnte nicht geladen werden', retry: 'Erneut versuchen', copy: 'Kopieren', copied: 'Kopiert', all: 'Alle', active: 'Unterwegs', delayed: 'Verzögert', delivered: 'Zugestellt', cancelled: 'Storniert', refunded: 'Rückerstattung abgeschlossen', noTracking: 'Ohne Tracking', compact: 'Kompakt', animation: 'Animation', seller: 'Standort des Verkäufers', logo: 'Versandlogos', debug: 'Debug', settings: 'ParcelPilot-Einstellungen', inTransit: 'Unterwegs', readyForPickup: 'Abholbereit', labelCreated: 'Label erstellt', exception: 'Problem', unknown: 'Unbekannt', daysInTransit: 'Tage unterwegs', dayInTransit: 'Tag unterwegs', details: 'Lieferdetails', orderStatus: 'Bestellstatus', shipmentStatus: 'Paketstatus', options: 'Optionen', orderStatusUnavailable: 'Auf dieser Seite nicht gefunden', updatedAgo: 'aktualisiert', overdue: 'Zustellschätzung überschritten' },
+		it: { trackingId: 'Codice di tracciamento', trackingPage: 'Pagina di tracciamento', latestUpdate: 'Ultimo aggiornamento', estimatedDelivery: 'Consegna prevista', sellerLocation: 'Posizione del venditore', location: 'Posizione', myOrders: 'I miei ordini', loading: 'Caricamento delle informazioni di tracciamento…', unavailable: 'Codice di tracciamento non disponibile', notShipped: 'Non ancora spedito', loadFailed: 'Impossibile caricare il tracciamento', retry: 'Riprova', copy: 'Copia', copied: 'Copiato', all: 'Tutti', active: 'In transito', delayed: 'In ritardo', delivered: 'Consegnato', cancelled: 'Annullato', refunded: 'Rimborso effettuato', noTracking: 'Senza tracciamento', compact: 'Compatto', animation: 'Animazione', seller: 'Posizione del venditore', logo: 'Loghi dei corrieri', debug: 'Debug', settings: 'Impostazioni di ParcelPilot', inTransit: 'In transito', readyForPickup: 'Pronto per il ritiro', labelCreated: 'Etichetta creata', exception: 'Problema', unknown: 'Sconosciuto', daysInTransit: 'giorni di transito', dayInTransit: 'giorno di transito', details: 'Dettagli di consegna', orderStatus: 'Stato dell’ordine', shipmentStatus: 'Stato del pacco', options: 'Opzioni', orderStatusUnavailable: 'Non trovato in questa pagina', updatedAgo: 'aggiornato', overdue: 'Stima di consegna superata' },
+		pt: { trackingId: 'Código de rastreamento', trackingPage: 'Página de rastreamento', latestUpdate: 'Última atualização', estimatedDelivery: 'Entrega prevista', sellerLocation: 'Localização do vendedor', location: 'Localização', myOrders: 'As minhas encomendas', loading: 'A carregar informações de rastreamento…', unavailable: 'Código de rastreamento indisponível', notShipped: 'Ainda não enviado', loadFailed: 'Não foi possível carregar o rastreamento', retry: 'Tentar novamente', copy: 'Copiar', copied: 'Copiado', all: 'Todos', active: 'Em trânsito', delayed: 'Atrasado', delivered: 'Entregue', cancelled: 'Cancelado', refunded: 'Reembolso processado', noTracking: 'Sem rastreamento', compact: 'Compacto', animation: 'Animação', seller: 'Localização do vendedor', logo: 'Logótipos das transportadoras', debug: 'Depuração', settings: 'Definições do ParcelPilot', inTransit: 'Em trânsito', readyForPickup: 'Pronto para levantar', labelCreated: 'Etiqueta criada', exception: 'Problema', unknown: 'Desconhecido', daysInTransit: 'dias em trânsito', dayInTransit: 'dia em trânsito', details: 'Detalhes da entrega', orderStatus: 'Estado da encomenda', shipmentStatus: 'Estado do pacote', options: 'Opções', orderStatusUnavailable: 'Não encontrado nesta página', updatedAgo: 'atualizado', overdue: 'Estimativa de entrega ultrapassada' },
+		cs: { trackingId: 'Sledovací číslo', trackingPage: 'Sledování zásilky', latestUpdate: 'Poslední aktualizace', estimatedDelivery: 'Odhadované doručení', sellerLocation: 'Místo prodejce', location: 'Poloha', myOrders: 'Moje objednávky', loading: 'Načítají se informace o zásilce…', unavailable: 'Sledovací číslo není k dispozici', notShipped: 'Zatím neodesláno', loadFailed: 'Sledování se nepodařilo načíst', retry: 'Zkusit znovu', copy: 'Kopírovat', copied: 'Zkopírováno', all: 'Vše', active: 'Na cestě', delayed: 'Zpožděno', delivered: 'Doručeno', cancelled: 'Zrušeno', refunded: 'Vrácení peněz zpracováno', noTracking: 'Bez sledování', compact: 'Kompaktní', animation: 'Animace', seller: 'Místo prodejce', logo: 'Loga dopravců', debug: 'Ladění', settings: 'Nastavení ParcelPilot', inTransit: 'Na cestě', readyForPickup: 'Připraveno k vyzvednutí', labelCreated: 'Štítek vytvořen', exception: 'Problém', unknown: 'Neznámé', daysInTransit: 'dní v cestě', dayInTransit: 'den v cestě', details: 'Podrobnosti doručení', orderStatus: 'Stav objednávky', shipmentStatus: 'Stav zásilky', options: 'Možnosti', orderStatusUnavailable: 'Na této stránce nenalezeno', updatedAgo: 'aktualizováno', overdue: 'Termín doručení vypršel' },
+		sk: { trackingId: 'Sledovacie číslo', trackingPage: 'Sledovanie zásielky', latestUpdate: 'Posledná aktualizácia', estimatedDelivery: 'Odhadované doručenie', sellerLocation: 'Miesto predajcu', location: 'Poloha', myOrders: 'Moje objednávky', loading: 'Načítavajú sa informácie o zásielke…', unavailable: 'Sledovacie číslo nie je k dispozícii', notShipped: 'Zatiaľ neodoslané', loadFailed: 'Sledovanie sa nepodarilo načítať', retry: 'Skúsiť znova', copy: 'Kopírovať', copied: 'Skopírované', all: 'Všetko', active: 'Na ceste', delayed: 'Mešká', delivered: 'Doručené', cancelled: 'Zrušené', refunded: 'Vrátenie peňazí spracované', noTracking: 'Bez sledovania', compact: 'Kompaktné', animation: 'Animácia', seller: 'Miesto predajcu', logo: 'Logá dopravcov', debug: 'Ladenie', settings: 'Nastavenia ParcelPilot', inTransit: 'Na ceste', readyForPickup: 'Pripravené na vyzdvihnutie', labelCreated: 'Štítok vytvorený', exception: 'Problém', unknown: 'Neznáme', daysInTransit: 'dní v ceste', dayInTransit: 'deň v ceste', details: 'Podrobnosti doručenia', orderStatus: 'Stav objednávky', shipmentStatus: 'Stav zásielky', options: 'Možnosti', orderStatusUnavailable: 'Na tejto stránke sa nenašlo', updatedAgo: 'aktualizované', overdue: 'Termín doručenia uplynul' },
+		pl: { trackingId: 'Numer przesyłki', trackingPage: 'Śledź przesyłkę', latestUpdate: 'Ostatnia aktualizacja', estimatedDelivery: 'Przewidywana dostawa', sellerLocation: 'Lokalizacja sprzedawcy', location: 'Lokalizacja', myOrders: 'Moje zamówienia', loading: 'Wczytywanie informacji o przesyłce…', unavailable: 'Numer przesyłki niedostępny', notShipped: 'Jeszcze nie wysłano', loadFailed: 'Nie udało się wczytać śledzenia', retry: 'Spróbuj ponownie', copy: 'Kopiuj', copied: 'Skopiowano', all: 'Wszystkie', active: 'W drodze', delayed: 'Opóźnione', delivered: 'Dostarczone', cancelled: 'Anulowane', refunded: 'Zwrot przetworzony', noTracking: 'Bez śledzenia', compact: 'Zwarty', animation: 'Animacja', seller: 'Lokalizacja sprzedawcy', logo: 'Logotypy przewoźników', debug: 'Tryb debugowania', settings: 'Ustawienia ParcelPilot', inTransit: 'W drodze', readyForPickup: 'Gotowe do odbioru', labelCreated: 'Etykieta utworzona', exception: 'Problem', unknown: 'Nieznany', daysInTransit: 'dni w trasie', dayInTransit: 'dzień w trasie', details: 'Szczegóły dostawy', orderStatus: 'Status zamówienia', shipmentStatus: 'Status przesyłki', options: 'Opcje', orderStatusUnavailable: 'Nie znaleziono na tej stronie', updatedAgo: 'zaktualizowano', overdue: 'Termin dostawy minął' },
+		sv: { trackingId: 'Spårningsnummer', trackingPage: 'Spåra paketet', latestUpdate: 'Senaste uppdateringen', estimatedDelivery: 'Beräknad leverans', sellerLocation: 'Säljarens plats', location: 'Plats', myOrders: 'Mina beställningar', loading: 'Hämtar spårningsinformation…', unavailable: 'Spårningsnummer saknas', notShipped: 'Inte skickat än', loadFailed: 'Kunde inte hämta spårningen', retry: 'Försök igen', copy: 'Kopiera', copied: 'Kopierat', all: 'Alla', active: 'Under väg', delayed: 'Försenad', delivered: 'Levererad', cancelled: 'Avbruten', refunded: 'Återbetalning behandlad', noTracking: 'Ingen spårning', compact: 'Kompakt', animation: 'Animation', seller: 'Säljarens plats', logo: 'Bärarlogos', debug: 'Felsökning', settings: 'ParcelPilot-inställningar', inTransit: 'Under väg', readyForPickup: 'Redo för hämtning', labelCreated: 'Etikett skapad', exception: 'Problem', unknown: 'Okänt', daysInTransit: 'dagar under väg', dayInTransit: 'dag under väg', details: 'Leveransdetaljer', orderStatus: 'Orderstatus', shipmentStatus: 'Paketstatus', options: 'Alternativ', orderStatusUnavailable: 'Hittades inte på den här sidan', updatedAgo: 'uppdaterad', overdue: 'Leveranstidsuppskattningen har passerat' },
+		sl: { trackingId: 'Številka za sledenje', trackingPage: 'Sledenje pošiljke', latestUpdate: 'Zadnja posodobitev', estimatedDelivery: 'Predvidena dostava', sellerLocation: 'Lokacija prodajalca', location: 'Lokacija', myOrders: 'Moja naročila', loading: 'Nalaganje podatkov za sledenje…', unavailable: 'Številka za sledenje ni na voljo', notShipped: 'Še ni poslano', loadFailed: 'Sledenja ni bilo mogoče naložiti', retry: 'Poskusi znova', copy: 'Kopiraj', copied: 'Kopirano', all: 'Vse', active: 'Na poti', delayed: 'Zamikšano', delivered: 'Dostavljeno', cancelled: 'Preklicano', refunded: 'Vračilo obdelano', noTracking: 'Brez sledenja', compact: 'Zgoščeno', animation: 'Animacija', seller: 'Lokacija prodajalca', logo: 'Logotipi prevoznikov', debug: 'Razhroščevanje', settings: 'Nastavitve ParcelPilot', inTransit: 'Na poti', readyForPickup: 'Pripravljeno za prevzem', labelCreated: 'Etiketa ustvarjena', exception: 'Težava', unknown: 'Neznano', daysInTransit: 'dni na poti', dayInTransit: 'dan na poti', details: 'Podrobnosti dostave', orderStatus: 'Stanje naročila', shipmentStatus: 'Stanje pošiljke', options: 'Možnosti', orderStatusUnavailable: 'Ni najdeno na tej strani', updatedAgo: 'posodobljeno', overdue: 'Napovedana dostava je potekla' },
+		hu: { trackingId: 'Követési szám', trackingPage: 'Csomag nyomon követése', latestUpdate: 'Legutóbbi frissítés', estimatedDelivery: 'Várható kézbesítés', sellerLocation: 'Az eladó helye', location: 'Hely', myOrders: 'Rendeléseim', loading: 'A nyomon követési adatok betöltése…', unavailable: 'A követési szám nem érhető el', notShipped: 'Még nincs feladva', loadFailed: 'A nyomon követés nem tölthető be', retry: 'Újrapróbálkozás', copy: 'Másolás', copied: 'Másolva', all: 'Összes', active: 'Úton', delayed: 'Késésben', delivered: 'Kézbesítve', cancelled: 'Törölve', refunded: 'Visszatérítés feldolgozva', noTracking: 'Nyomkövetés nélkül', compact: 'Tömör', animation: 'Animáció', seller: 'Az eladó helye', logo: 'Futárszervezetek logói', debug: 'Hibakeresés', settings: 'ParcelPilot beállítások', inTransit: 'Úton', readyForPickup: 'Átvételre kész', labelCreated: 'Címke létrehozva', exception: 'Probléma', unknown: 'Ismeretlen', daysInTransit: 'nap az úton', dayInTransit: 'nap az úton', details: 'Szállítási adatok', orderStatus: 'Rendelés állapota', shipmentStatus: 'Csomag állapota', options: 'Beállítások', orderStatusUnavailable: 'Nem található ezen az oldalon', updatedAgo: 'frissítve', overdue: 'A kézbesítési becslés lejárt' },
 	};
 	const labels = { ...translations.en, ...(translations[language] ?? {}) };
 	Object.assign(labels, {
@@ -981,6 +981,16 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				background: #edf9f0;
 				color: #1d7a3a;
 			}
+			.vinted-tracking__status--refunded {
+				border-color: #c9d8ff;
+				background: #eef3ff;
+				color: #2f5fd0;
+			}
+			.vinted-tracking__status--cancelled {
+				border-color: #d7dde2;
+				background: #f5f7f8;
+				color: #5d6870;
+			}
 			.vinted-tracking__status--delayed,
 			.vinted-tracking__status--exception {
 				border-color: #ffd1c8;
@@ -1111,6 +1121,16 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				border-left-color: #b7dfc2;
 				background: #edf9f0;
 				color: #1d7a3a;
+			}
+			.vinted-tracking--notice--refunded {
+				border-left-color: #c9d8ff;
+				background: #eef3ff;
+				color: #2f5fd0;
+			}
+			.vinted-tracking--notice--cancelled {
+				border-left-color: #b9c4c4;
+				background: #f5f7f8;
+				color: #5d6870;
 			}
 			.vinted-tracking__notice-icon {
 				width: 16px;
@@ -1262,6 +1282,12 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			}
 			.vinted-tracking-stat--delivered .vinted-tracking-stat__value {
 				color: #1d7a3a;
+			}
+			.vinted-tracking-stat--refunded .vinted-tracking-stat__value {
+				color: #2f6fed;
+			}
+			.vinted-tracking-stat--cancelled .vinted-tracking-stat__value {
+				color: #8b939b;
 			}
 			.vinted-tracking-stat--missing .vinted-tracking-stat__value {
 				color: #5d6870;
@@ -1748,10 +1774,12 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			const status = row.dataset.vintedStatus ?? 'unknown';
 			const hasTracking = row.dataset.vintedHasTracking === 'true';
 			const visible = settings.filter === 'all'
-				|| (settings.filter === 'active' && !['delivered', 'delayed'].includes(status) && hasTracking)
+				|| (settings.filter === 'active' && !['delivered', 'delayed', 'cancelled', 'refunded'].includes(status) && hasTracking)
 				|| (settings.filter === 'delayed' && status === 'delayed')
 				|| (settings.filter === 'delivered' && status === 'delivered')
-				|| (settings.filter === 'missing' && !hasTracking && status !== 'delivered');
+				|| (settings.filter === 'refunded' && status === 'refunded')
+				|| (settings.filter === 'cancelled' && status === 'cancelled')
+				|| (settings.filter === 'missing' && !hasTracking && !['delivered', 'cancelled', 'refunded'].includes(status));
 			card.classList.toggle('vinted-tracking-card-hidden', !visible);
 		}
 		updateDashboard();
@@ -1778,10 +1806,12 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 
 	function updateDashboard() {
 		const rows = getOrderRows();
-		const counts = { total: rows.length, active: 0, delayed: 0, delivered: 0, missing: 0, pickup: 0 };
+		const counts = { total: rows.length, active: 0, delayed: 0, delivered: 0, refunded: 0, cancelled: 0, missing: 0, pickup: 0 };
 		for (const row of rows) {
 			const status = row.dataset.vintedStatus ?? 'unknown';
 			if (status === 'delivered') counts.delivered += 1;
+			else if (status === 'cancelled') counts.cancelled += 1;
+			else if (status === 'refunded') counts.refunded += 1;
 			else if (status === 'delayed') counts.delayed += 1;
 			else if (status === 'pickup') counts.pickup += 1;
 			else if (row.dataset.vintedHasTracking === 'true') counts.active += 1;
@@ -1794,6 +1824,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			{ tone: 'active', label: labels.active, value: counts.active },
 			{ tone: 'delayed', label: labels.delayed, value: counts.delayed },
 			{ tone: 'delivered', label: labels.delivered, value: counts.delivered },
+			{ tone: 'refunded', label: labels.refunded, value: counts.refunded },
+			{ tone: 'cancelled', label: labels.cancelled, value: counts.cancelled },
 			{ tone: 'missing', label: labels.noTracking, value: counts.missing },
 		];
 		dashboard.replaceChildren(...stats.map(({ tone, label, value }) => {
@@ -1817,7 +1849,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			const tracking = orderResults.get(row.dataset.vintedOrderId);
 			if (settings.sort === 'carrier') return { value: tracking?.carrier ?? '', missing: !tracking?.carrier };
 			if (settings.sort === 'status') {
-				const statusRank = { delayed: 0, pickup: 1, active: 2, label: 3, unknown: 4, delivered: 5 };
+				const statusRank = { delayed: 0, pickup: 1, active: 2, label: 3, unknown: 4, cancelled: 5, refunded: 6, delivered: 7 };
 				const status = row.dataset.vintedStatus ?? 'unknown';
 				return { value: statusRank[status] ?? statusRank.unknown, missing: false };
 			}
@@ -1853,7 +1885,19 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			const tracking = orderResults.get(row.dataset.vintedOrderId) ?? {};
 			const product = getProductInfo(row.parentElement ?? row);
 			const note = notes[row.dataset.vintedOrderId] ?? {};
-			lines.push([product.name, tracking.code, tracking.carrier, tracking.statusLabel, tracking.latestMessage, tracking.estimatedDelivery, [tracking.sellerCity, tracking.sellerCountry].filter(Boolean).join(', '), note.text ?? '', (note.tags ?? []).join(', ')]);
+			const rowStatus = row.dataset.vintedStatus ?? 'unknown';
+			const statusLabelMap = {
+				delivered: labels.delivered,
+				delayed: labels.delayed,
+				pickup: labels.readyForPickup,
+				label: labels.labelCreated,
+				active: labels.inTransit,
+				unknown: labels.unknown,
+				cancelled: labels.cancelled,
+				refunded: labels.refunded,
+			};
+			const statusLabel = statusLabelMap[rowStatus] ?? tracking.statusLabel;
+			lines.push([product.name, tracking.code, tracking.carrier, statusLabel, tracking.latestMessage, tracking.estimatedDelivery, [tracking.sellerCity, tracking.sellerCountry].filter(Boolean).join(', '), note.text ?? '', (note.tags ?? []).join(', ')]);
 		}
 		const csv = lines.map((line) => line.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
 		const link = document.createElement('a');
@@ -2007,7 +2051,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		shipmentGroup.append(shipmentLabel);
 		const filters = document.createElement('div');
 		filters.className = 'vinted-tracking-toolbar__filters';
-		for (const [value, label] of [['all', labels.all], ['active', labels.active], ['delayed', labels.delayed], ['delivered', labels.delivered], ['missing', labels.noTracking]]) {
+		for (const [value, label] of [['all', labels.all], ['active', labels.active], ['delayed', labels.delayed], ['delivered', labels.delivered], ['refunded', labels.refunded], ['cancelled', labels.cancelled], ['missing', labels.noTracking]]) {
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.textContent = label;
@@ -2300,23 +2344,25 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		card.querySelector(`[data-vinted-loading-id="${orderId}"]`)?.remove();
 		if (card.querySelector(`[data-vinted-order-id="${orderId}"]`)) return;
 		if (!hasShipmentInfo(tracking)) {
-			addNoticeRow(card, orderId, getCardDeliveryHint(card) ? 'delivered' : 'notShipped');
+			addNoticeRow(card, orderId, getCardStatusHint(card) || 'notShipped');
 			return;
 		}
 		ensureTrackingStyles();
 		const row = document.createElement('section');
 		row.dataset.vintedOrderId = orderId;
-		// Without a code or URL the parcel has no usable tracking, so a finished order only surfaces
-		// through the card status line; use it to keep delivered orders out of the "No tracking" bucket.
+		// Without a code or URL the parcel has no usable tracking, so the card status line is the only
+		// signal; use it to keep finished, cancelled and refunded orders out of the "No tracking" bucket.
 		let statusKey = tracking.status ?? 'unknown';
-		if (!(tracking.code || tracking.url) && (statusKey === 'unknown' || statusKey === 'label') && getCardDeliveryHint(card)) {
-			statusKey = 'delivered';
+		let hinted = '';
+		if (!(tracking.code || tracking.url) && (statusKey === 'unknown' || statusKey === 'label')) {
+			hinted = getCardStatusHint(card);
+			if (hinted) statusKey = hinted;
 		}
 		row.dataset.vintedStatus = statusKey;
 		row.dataset.vintedHasTracking = String(Boolean(tracking.code || tracking.url));
 		const stale = tracking.latestTimestamp && Date.now() - Date.parse(tracking.latestTimestamp) > Number(settings.staleDays) * 86400000;
 		row.className = `vinted-tracking${tracking.delayed ? ' vinted-tracking--delayed' : ''}${stale ? ' vinted-tracking--stale' : ''}${settings.compact ? ' vinted-tracking--compact' : ''}`;
-		row.setAttribute('aria-label', `${labels.details}: ${tracking.statusLabel ?? labels.unknown}`);
+		row.setAttribute('aria-label', `${labels.details}: ${hinted ? labels[hinted] : tracking.statusLabel ?? labels.unknown}`);
 
 		// Top group: what was bought. Only the fields that exist are rendered, so any item shape
 		// from the page works without changing the markup.
@@ -2356,7 +2402,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 
 		const status = document.createElement('span');
 		status.className = `vinted-tracking__status vinted-tracking__status--${statusKey}`;
-		status.textContent = statusKey === 'delivered' && tracking.status !== 'delivered' ? labels.delivered : tracking.statusLabel ?? labels.unknown;
+		status.textContent = hinted ? labels[hinted] : tracking.statusLabel ?? labels.unknown;
 		bar.append(status);
 
 		const transitAge = getDaysInTransit(tracking);
@@ -2462,26 +2508,31 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		);
 	}
 
-	// Orders that Vinted already resolved (delivered/picked up/completed) carry that state as a short
-	// status line on the card (e.g. "Order completed", "Commande terminée"), even when no shipment data
-	// exists. Reading it stops finished orders from being counted under "No tracking". Only standalone
-	// leaf texts of a few words are considered, and the status word must end the line, so item
-	// descriptions and button labels are ignored. The word list covers every Vinted UI language.
-	function getCardDeliveryHint(card) {
+	// Orders that Vinted already resolved carry that state as a short, localized status line on the
+	// card (e.g. "Order completed", "Commande terminée", "Order cancelled", "Refund processed"), even
+	// when no shipment data exists. Reading it keeps finished, cancelled and refunded orders out of
+	// the "No tracking" bucket. Only standalone leaf texts of a few words are considered, and status
+	// words must end the line, so item descriptions and button labels are ignored. The word lists
+	// cover every Vinted UI language.
+	function getCardStatusHint(card) {
 		if (!card) return '';
-		const statusWord = '(?:'
-			+ 'delivered|picked up|afgeleverd|bezorgd|opgehaald|livr[eé]e?s?|retir[eé]s?|entregad[oa]s?|recogid[oa]s?|recibido|zugestellt|consegnat[oa]?|dostarczon[ayoe]|odebran[aeoy]?|doru[cč]en[áyaoée]?|vyzvednut[oy]?|vyzdvihnut[ée]?|pristatyt[ai]?|pieg[aā]d[aā]t[as]?|levererad|uth[aä]mtad|livrat[ăa]?|entregue|toimitett[ua]?|noudett[uai]?|suoritett[ua]?|kohale[ -]toimetatud|k[äa]ttes|ké?zbesítve|[áa]tv[eé]ve|dostavljen[oa]?|prevzet[oa]?|zavr[sš]en[oa]?|isporu[cč]en[oa]?|afsluttet|leveret|finalizat[ăa]?|изпълнена|доставена|завершен[ао]?|παραδόθηκε|ολοκληρώθηκε'
-			+ '|completed|complete|voltooid|afgerond|termin[eé]e?s?|abgeschlossen|completad[oa]s?|completat[oa]?|conclu[ií]d[oa]s?|zakończon[ayea]|dokon[cč]en[áyaoée]?|slutf[öo]rd|zaključen[oa]?|lõpetatud|baigt(?:as|a|os|ai|i|o)?|pabeigt[as]?|teljesítve|finalizad[oa]?|conclu[ií]do|komplet[éé]?'
-			+ ')';
+		const deliveredWord = '(?:delivered|picked up|afgeleverd|bezorgd|opgehaald|livr[eé]e?s?|retir[eé]s?|entregad[oa]s?|recogid[oa]s?|recibido|zugestellt|consegnat[oa]?|dostarczon[ayoe]|odebran[aeoy]?|doru[cč]en[áyaoée]?|vyzvednut[oy]?|vyzdvihnut[ée]?|pristatyt[ai]?|pieg[aā]d[aā]t[as]?|levererad|uth[aä]mtad|livrat[ăa]?|entregue|toimitett[ua]?|noudett[uai]?|suoritett[ua]?|kohale[ -]toimetatud|k[äa]ttes|ké?zbesítve|[áa]tv[eé]ve|dostavljen[oa]?|prevzet[oa]?|zavr[sš]en[oa]?|isporu[cč]en[oa]?|afsluttet|leveret|finalizat[ăa]?|изпълнена|доставена|завершен[ао]?|παραδόθηκε|ολοκληρώθηκε|completed|complete|voltooid|afgerond|termin[eé]e?s?|abgeschlossen|completad[oa]s?|completat[oa]?|conclu[ií]d[oa]s?|zakończon[ayea]|dokon[cč]en[áyaoée]?|slutf[öo]rd|zaključen[oa]?|lõpetatud|baigt(?:as|a|os|ai|i|o)?|pabeigt[as]?|teljesítve|finalizad[oa]?|conclu[ií]do|komplet[éé]?)';
+		const cancelledWord = '(?:cancelled|canceled|geannuleerd|annul[eé]e?s?|abgesagt|storniert|cancelad[oa]s?|annullat[oa]?|anulowan[eyae]?|zrušen[oaeyéá]?|avbruten|preklican[oa]?|tühistatud|atšaukt[as]?|atcelts?|törölve|ακυρώθηκε|ακυρωμέν[ηο]?|анулирован[оа]?|отмен[её]н[а]?|anulat[ăa]?|aflyst|peruttu)';
+		const refundWord = /(?:refund|restituti|rembours|reembols|rimbor|atmaks|gr[aą]žinim|visszat[eé]r[íi]t|återbetal|zwrot|zwr[oó]c|vr[áa]c|vr[aá]ten|vra[cč]il|tagasimak|r[üu]ck(?:erstatt(?:ung)?)?|korvaus|palautus|refusion|tilbagebetaling|επιστροφ|povrac|возмещ|поверне|възстанов)/i;
 		// The status word must come after a word start (whitespace, punctuation or line start) and be the
 		// last word of the line: "Order completed", "Commande terminée", "Voltooid", "Zamówienie zakończone".
-		const ending = new RegExp(`(?:^|[\\s\\p{P}])${statusWord}$`, 'iu');
+		const endingFor = (word) => new RegExp(`(?:^|[\\s\\p{P}])${word}$`, 'iu');
+		const delivered = endingFor(deliveredWord);
+		const cancelled = endingFor(cancelledWord);
 		for (const node of card.querySelectorAll('div, span, p, li, h2, h3, h4, strong, b, a, button')) {
 			if (node.children.length > 0) continue;
 			if (node.closest('[data-vinted-order-id], [data-vinted-loading-id], [data-vinted-tracking-toolbar]')) continue;
 			const text = (node.textContent ?? '').replace(/\s+/g, ' ').trim();
 			if (text.length < 3 || text.length > 40) continue;
-			if (ending.test(text.replace(/[.!…]+$/u, ''))) return 'delivered';
+			const clean = text.replace(/[.!…]+$/u, '');
+			if (refundWord.test(clean)) return 'refunded';
+			if (cancelled.test(clean)) return 'cancelled';
+			if (delivered.test(clean)) return 'delivered';
 		}
 		return '';
 	}
@@ -2490,28 +2541,37 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		card.querySelector(`[data-vinted-loading-id="${orderId}"]`)?.remove();
 		if (card.querySelector(`[data-vinted-order-id="${orderId}"]`)) return;
 		ensureTrackingStyles();
-		const failed = kind === 'failed';
-		const delivered = kind === 'delivered';
+		const statusKinds = ['delivered', 'cancelled', 'refunded'];
+		const noticeIcons = {
+			delivered: ['M20 6 9 17l-5-5'],
+			cancelled: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M9 9l6 6', 'M15 9l-6 6'],
+			refunded: ['M3 12a9 9 0 1 0 2.2-5.95L3 8', 'M3 3v5h5'],
+			failed: ['M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z', 'M12 9v4', 'M12 17h.01'],
+			notShipped: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 7v5l3 2'],
+		};
+		const noticeLabels = {
+			delivered: labels.delivered,
+			cancelled: labels.cancelled,
+			refunded: labels.refunded,
+			failed: labels.loadFailed,
+			notShipped: labels.notShipped,
+		};
 		const row = document.createElement('section');
 		row.dataset.vintedOrderId = orderId;
-		row.dataset.vintedStatus = delivered ? 'delivered' : 'unknown';
+		row.dataset.vintedStatus = statusKinds.includes(kind) ? kind : 'unknown';
 		row.dataset.vintedHasTracking = 'false';
 		row.className = `vinted-tracking vinted-tracking--notice vinted-tracking--notice--${kind}`;
 
-		const icon = createIcon(delivered
-			? ['M20 6 9 17l-5-5']
-			: failed
-				? ['M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z', 'M12 9v4', 'M12 17h.01']
-				: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 7v5l3 2']);
+		const icon = createIcon(noticeIcons[kind] ?? noticeIcons.notShipped);
 		icon.classList.add('vinted-tracking__notice-icon');
 		row.append(icon);
 
 		const text = document.createElement('span');
 		text.className = 'vinted-tracking__notice-text';
-		text.textContent = failed ? labels.loadFailed : delivered ? labels.delivered : labels.notShipped;
+		text.textContent = noticeLabels[kind] ?? labels.notShipped;
 		row.append(text);
 
-		if (failed) {
+		if (kind === 'failed') {
 			const retry = document.createElement('button');
 			retry.type = 'button';
 			retry.className = 'vinted-tracking__retry';
@@ -2702,7 +2762,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			if (!card.isConnected) continue;
 			card.querySelector(`[data-vinted-loading-id="${orderId}"]`)?.remove();
 			if (tracking === LOAD_FAILED) {
-				addNoticeRow(card, orderId, getCardDeliveryHint(card) ? 'delivered' : 'failed');
+				addNoticeRow(card, orderId, getCardStatusHint(card) || 'failed');
 			} else {
 				addTrackingRow(card, orderId, tracking);
 			}
