@@ -10,17 +10,17 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ## What's new in 1.5.4
 
-Compared with 1.5.3, this patch prevents scheduled page scans from running while Notitie or Tags is focused, so focus remains in the active field while typing.
+Compared with 1.5.3, this patch prevents scheduled page scans from running while Notes or Tags is focused, so focus remains in the active field while typing.
 
 Compared with 1.5.2, this patch:
 
-- Makes Notitie and Tags compact fields instead of letting them expand across the whole order card.
-- Keeps the Notitie field auto-growing only as far as its content requires, with a practical maximum height.
-- Prevents Vinted's order-card event handlers from receiving typing, focus and pointer events from Tags and Notitie, so focus stays in the field while typing.
+- Makes Notes and Tags compact fields instead of letting them expand across the whole order card.
+- Keeps the Notes field auto-growing only as far as its content requires, with a practical maximum height.
+- Prevents Vinted's order-card event handlers from receiving typing, focus and pointer events from Tags and Notes, so focus stays in the field while typing.
 
 Compared with 1.5.1, this patch:
 
-- Automatically grows the Notitie field vertically as text is entered.
+- Automatically grows the Notes field vertically as text is entered.
 - Adjusts the Tags field width to the entered content within the available card width.
 - Labels the auto-refresh number as an interval in minutes, so the value `10` clearly means refresh every 10 minutes.
 
@@ -28,7 +28,7 @@ Compared with 1.5.0, the fixed Options card is now positioned in the lower-left 
 
 Compared with 1.4.1, this release:
 
-- Adds clear **Notitie** and **Tags** labels above the local fields.
+- Adds clear **Notes** and **Tags** labels above the local fields.
 - Places the overview and sorting controls in a full horizontal row below the two status panels.
 - Makes the Options panel permanently visible as a compact, highlighted floating card that follows the page while scrolling without covering the main toolbar.
 
