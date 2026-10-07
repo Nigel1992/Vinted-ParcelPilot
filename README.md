@@ -8,7 +8,9 @@ It adds a quick **My Orders** shortcut and displays available shipment informati
 
 ![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
 
-## What's new in 1.5.3
+## What's new in 1.5.4
+
+Compared with 1.5.3, this patch prevents scheduled page scans from running while Notitie or Tags is focused, so focus remains in the active field while typing.
 
 Compared with 1.5.2, this patch:
 

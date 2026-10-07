@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.3
+// @version      1.5.4
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -97,6 +97,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	let refreshTimer;
 	let lastNotificationState = new Map();
 	const noteSaveTimers = new Map();
+	let noteInputActive = false;
 
 	function loadSettings() {
 		try {
@@ -138,6 +139,10 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			saveOrderNote(orderId, text, tagText);
 			noteSaveTimers.delete(orderId);
 		}, 350));
+	}
+
+	function isNoteEditorElement(element) {
+		return element instanceof Element && Boolean(element.closest('[data-vinted-note-editor]'));
 	}
 
 	function startAutoRefresh() {
@@ -2495,6 +2500,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 
 	async function scanOrders() {
 		if (location.pathname !== '/my_orders') return;
+		if (noteInputActive || isNoteEditorElement(document.activeElement)) return;
 		// Vinted replaces its filter control whenever the list re-renders, so keep ours in step.
 		const orderFilter = ensureVintedOrderFilter();
 		if (orderFilter) markActiveOrderFilterButtons(readActiveOrderFilter(orderFilter));
@@ -2549,13 +2555,28 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	}
 
 	function scheduleScan() {
+		if (noteInputActive || isNoteEditorElement(document.activeElement)) return;
 		clearTimeout(scanTimer);
 		scanTimer = setTimeout(() => void scanOrders(), 900);
 	}
 
+	document.addEventListener('focusin', (event) => {
+		if (!isNoteEditorElement(event.target)) return;
+		noteInputActive = true;
+		clearTimeout(scanTimer);
+	}, true);
+	document.addEventListener('focusout', (event) => {
+		if (!isNoteEditorElement(event.target)) return;
+		setTimeout(() => {
+			if (isNoteEditorElement(document.activeElement)) return;
+			noteInputActive = false;
+			scheduleScan();
+		}, 0);
+	}, true);
+
 	new MutationObserver(() => {
 		addOrdersShortcut();
-		if (document.activeElement?.closest('[data-vinted-note-editor]')) return;
+		if (noteInputActive || isNoteEditorElement(document.activeElement)) return;
 		scheduleScan();
 	}).observe(document.body, {
 		childList: true,
