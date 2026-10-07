@@ -1,7 +1,7 @@
 # Vinted ParcelPilot
 
 [![GreasyFork](https://img.shields.io/badge/Install-GreasyFork-670000?logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
-[![Version](https://img.shields.io/badge/version-1.5.4-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+[![Version](https://img.shields.io/badge/version-1.5.5-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![Userscript](https://img.shields.io/badge/type-Userscript-orange)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![License](https://img.shields.io/badge/license-Custom%20Non--Commercial-lightgrey)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 
@@ -262,6 +262,18 @@ Vinted completed orders
 +
 Parcels currently in transit
 ```
+
+### Compact toolbar layout
+
+Both filter groups live in a single compact **FILTERS** section above your order list:
+
+| Section  | Options |
+| -------- | ------- |
+| Filters  | Orders: Alles / In behandeling / Voltooid / Geannuleerd · Shipments: Alles / Onderweg / Vertraagd / Afgeleverd / Geen tracking |
+| Overview | Total, On the way, Delayed, Delivered, No tracking counts + right-aligned **Export CSV** button |
+| Controls | Refresh now, Sort, Direction, Auto refresh, Refresh interval, Notifications |
+
+The Overview counts keep their semantic colours (for example, delayed shipments are shown in red), the selected filter chip is solid teal, and the whole toolbar wraps gracefully on smaller screens.
 
 ---
 
@@ -608,6 +620,17 @@ Avoid posting personal information or complete tracking details publicly.
 ---
 
 ## 📝 Changelog
+
+### 1.5.5
+
+* Redesigned the dashboard toolbar to be more compact and easier to scan.
+* Combined the order and parcel status filters into one **FILTERS** section.
+* Replaced the large bordered stat badges with a compact, color-coded overview line.
+* Consolidated sorting, refresh, auto-refresh and notification controls into a single toolbar row.
+* Moved the CSV export action into the Overview header.
+* Reduced nested borders and removed unused styles for a lighter layout.
+* Added clearer selected, hover and focus button states.
+* Improved wrapping and touch-friendly behaviour on mobile and tablet screens.
 
 ### 1.5.4
 
