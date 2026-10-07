@@ -1,7 +1,7 @@
 # Vinted ParcelPilot
 
 [![GreasyFork](https://img.shields.io/badge/Install-GreasyFork-670000?logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
-[![Version](https://img.shields.io/badge/version-1.5.5-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+[![Version](https://img.shields.io/badge/version-1.5.6-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![Userscript](https://img.shields.io/badge/type-Userscript-orange)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![License](https://img.shields.io/badge/license-Custom%20Non--Commercial-lightgrey)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 
@@ -620,6 +620,10 @@ Avoid posting personal information or complete tracking details publicly.
 ---
 
 ## 📝 Changelog
+
+### 1.5.6
+
+* Delivered parcels no longer count toward or appear under "No tracking", even when they have no tracking code.
 
 ### 1.5.5
 
