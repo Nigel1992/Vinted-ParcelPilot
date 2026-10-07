@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.6
+// @version      1.5.7
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -1106,6 +1106,11 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 				border-left-color: #d5a400;
 				background: #fffdf5;
 				color: #7a5b00;
+			}
+			.vinted-tracking--notice--delivered {
+				border-left-color: #b7dfc2;
+				background: #edf9f0;
+				color: #1d7a3a;
 			}
 			.vinted-tracking__notice-icon {
 				width: 16px;
@@ -2295,13 +2300,19 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		card.querySelector(`[data-vinted-loading-id="${orderId}"]`)?.remove();
 		if (card.querySelector(`[data-vinted-order-id="${orderId}"]`)) return;
 		if (!hasShipmentInfo(tracking)) {
-			addNoticeRow(card, orderId, 'notShipped');
+			addNoticeRow(card, orderId, getCardDeliveryHint(card) ? 'delivered' : 'notShipped');
 			return;
 		}
 		ensureTrackingStyles();
 		const row = document.createElement('section');
 		row.dataset.vintedOrderId = orderId;
-		row.dataset.vintedStatus = tracking.status ?? 'unknown';
+		// Without a code or URL the parcel has no usable tracking, so a finished order only surfaces
+		// through the card status line; use it to keep delivered orders out of the "No tracking" bucket.
+		let statusKey = tracking.status ?? 'unknown';
+		if (!(tracking.code || tracking.url) && (statusKey === 'unknown' || statusKey === 'label') && getCardDeliveryHint(card)) {
+			statusKey = 'delivered';
+		}
+		row.dataset.vintedStatus = statusKey;
 		row.dataset.vintedHasTracking = String(Boolean(tracking.code || tracking.url));
 		const stale = tracking.latestTimestamp && Date.now() - Date.parse(tracking.latestTimestamp) > Number(settings.staleDays) * 86400000;
 		row.className = `vinted-tracking${tracking.delayed ? ' vinted-tracking--delayed' : ''}${stale ? ' vinted-tracking--stale' : ''}${settings.compact ? ' vinted-tracking--compact' : ''}`;
@@ -2344,8 +2355,8 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		if (carrierChip) bar.append(carrierChip);
 
 		const status = document.createElement('span');
-		status.className = `vinted-tracking__status vinted-tracking__status--${tracking.status ?? 'unknown'}`;
-		status.textContent = tracking.statusLabel ?? labels.unknown;
+		status.className = `vinted-tracking__status vinted-tracking__status--${statusKey}`;
+		status.textContent = statusKey === 'delivered' && tracking.status !== 'delivered' ? labels.delivered : tracking.statusLabel ?? labels.unknown;
 		bar.append(status);
 
 		const transitAge = getDaysInTransit(tracking);
@@ -2451,26 +2462,46 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		);
 	}
 
+	// Orders that Vinted already resolved (delivered/picked up/completed) carry that state as a short
+	// status line on the card, even when no shipment data exists. Reading it stops finished orders
+	// from being counted under "No tracking". Only standalone leaf texts of a few words are considered,
+	// which best matches the status line below the price and ignores item descriptions.
+	function getCardDeliveryHint(card) {
+		if (!card) return '';
+		const delivered = /^(?:delivered|picked up|afgeleverd|bezorgd|opgehaald|livr[eé]e?s?|retir[eé]s?|entregad[oa]s?|recogid[oa]s?|recibido|zugestellt|consegnat[oa]?|dostarczon[ayoe]|odebran[aeoy]?|doru[cč]en[yoée]?|vyzvednut[oy]?|vyzdvihnut[ée]?|pristatyt[ai]?|pieg[aā]d[aā]t[as]?|levererad|uth[aä]mtad|livrata|entregue|toimitett[ua]?|noudett[uai]?|kohale[ -]toimetatud|k[äa]ttes|ké?zbesítve|[áa]tv[eé]ve|dostavljen[oa]?|prevzet[oa]?|completed|complete|done|voltooid|afgerond|termin[eé]e?s?|abgeschlossen|completad[oa]s?|completat[oa]?|conclu[ií]d[oa]s?|zakończon[ayea]|dokon[cč]en[oyée]?|slutf[öo]rd|zaključen[oa]?|lõpetatud|baigt(?:as|a|os|ai|i|o)?|pabeigt[as]?|teljesítve|finalizad[oa]?|conclu[ií]do|komplet[éé]?)$/i;
+		for (const node of card.querySelectorAll('div, span, p, li, h2, h3, h4, strong, b')) {
+			if (node.children.length > 0) continue;
+			if (node.closest('[data-vinted-order-id], [data-vinted-loading-id], [data-vinted-tracking-toolbar]')) continue;
+			const text = (node.textContent ?? '').replace(/\s+/g, ' ').trim();
+			if (text.length < 3 || text.length > 40) continue;
+			if (delivered.test(text)) return 'delivered';
+		}
+		return '';
+	}
+
 	function addNoticeRow(card, orderId, kind) {
 		card.querySelector(`[data-vinted-loading-id="${orderId}"]`)?.remove();
 		if (card.querySelector(`[data-vinted-order-id="${orderId}"]`)) return;
 		ensureTrackingStyles();
 		const failed = kind === 'failed';
+		const delivered = kind === 'delivered';
 		const row = document.createElement('section');
 		row.dataset.vintedOrderId = orderId;
-		row.dataset.vintedStatus = 'unknown';
+		row.dataset.vintedStatus = delivered ? 'delivered' : 'unknown';
 		row.dataset.vintedHasTracking = 'false';
 		row.className = `vinted-tracking vinted-tracking--notice vinted-tracking--notice--${kind}`;
 
-		const icon = createIcon(failed
-			? ['M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z', 'M12 9v4', 'M12 17h.01']
-			: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 7v5l3 2']);
+		const icon = createIcon(delivered
+			? ['M20 6 9 17l-5-5']
+			: failed
+				? ['M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z', 'M12 9v4', 'M12 17h.01']
+				: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 7v5l3 2']);
 		icon.classList.add('vinted-tracking__notice-icon');
 		row.append(icon);
 
 		const text = document.createElement('span');
 		text.className = 'vinted-tracking__notice-text';
-		text.textContent = failed ? labels.loadFailed : labels.notShipped;
+		text.textContent = failed ? labels.loadFailed : delivered ? labels.delivered : labels.notShipped;
 		row.append(text);
 
 		if (failed) {
@@ -2664,7 +2695,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			if (!card.isConnected) continue;
 			card.querySelector(`[data-vinted-loading-id="${orderId}"]`)?.remove();
 			if (tracking === LOAD_FAILED) {
-				addNoticeRow(card, orderId, 'failed');
+				addNoticeRow(card, orderId, getCardDeliveryHint(card) ? 'delivered' : 'failed');
 			} else {
 				addTrackingRow(card, orderId, tracking);
 			}

@@ -1,7 +1,7 @@
 # Vinted ParcelPilot
 
 [![GreasyFork](https://img.shields.io/badge/Install-GreasyFork-670000?logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
-[![Version](https://img.shields.io/badge/version-1.5.6-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+[![Version](https://img.shields.io/badge/version-1.5.7-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![Userscript](https://img.shields.io/badge/type-Userscript-orange)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![License](https://img.shields.io/badge/license-Custom%20Non--Commercial-lightgrey)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 
@@ -620,6 +620,11 @@ Avoid posting personal information or complete tracking details publicly.
 ---
 
 ## 📝 Changelog
+
+### 1.5.7
+
+* Orders that Vinted marks as delivered (visible on the order card) are now counted as delivered even when they have no tracking data, instead of appearing under "No tracking".
+* Added a green "Delivered" notice for finished orders whose shipment data could not be loaded.
 
 ### 1.5.6
 
