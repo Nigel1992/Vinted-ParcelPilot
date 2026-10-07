@@ -87,7 +87,7 @@ Compared with the remote 1.0.0 baseline, this release adds:
 - Builds a carrier tracking link for you when Vinted does not supply one, based on the carrier and tracking code.
 - Shows how long a parcel has been in transit and how long ago the last update was.
 - Counts transit days from the first real carrier scan, so creating a tracking code or label does not start the count early.
-- Uses the singular form for one day ("1 dag onderweg", "1 day in transit").
+- Uses the singular form for one day ("1 day in transit").
 - Highlights parcels whose estimated delivery date has passed without a delivery.
 - Recognises 18 carriers with their branding, including DHL, PostNL, DPD, GLS, UPS, bpost, InPost, Homerr, Relais Colis, Chronopost, Colissimo, Royal Mail, SEUR, Correos, Yodel, Packeta, Mondial Relay and Evri.
 - Explains empty states instead of staying silent: not shipped yet, no tracking code, or a load failure with a retry button.
@@ -104,8 +104,8 @@ A toolbar appears above your order list on `/my_orders`, divided into three labe
 
 | Group | Options | Description |
 | --- | --- | --- |
-| Order status | Alles / In behandeling / Voltooid / Geannuleerd | Vinted's own order filter, moved into this toolbar. Vinted's original bar is hidden so there is only one menu. The buttons keep Vinted's exact wording in your page language. |
-| Parcel status | Alles / Onderweg / Vertraagd / Afgeleverd / Geen tracking | Show only the parcels you care about. |
+| Order status | All / In progress / Completed / Cancelled | Vinted's own order filter, moved into this toolbar. Vinted's original bar is hidden so there is only one menu. The buttons keep Vinted's exact wording in your page language. |
+| Parcel status | All / In transit / Delayed / Delivered / No tracking | Show only the parcels you care about. |
 | Options | Compact, Animation, Seller location, Carrier logos, Debug | Display and loading preferences. |
 
 The two status groups work together: pick a parcel status first, then narrow it down by order status, or the other way round.
