@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.7
+// @version      1.5.8
 // @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
 // @license      Custom Non-Commercial Attribution License
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
@@ -2463,18 +2463,25 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	}
 
 	// Orders that Vinted already resolved (delivered/picked up/completed) carry that state as a short
-	// status line on the card, even when no shipment data exists. Reading it stops finished orders
-	// from being counted under "No tracking". Only standalone leaf texts of a few words are considered,
-	// which best matches the status line below the price and ignores item descriptions.
+	// status line on the card (e.g. "Order completed", "Commande terminée"), even when no shipment data
+	// exists. Reading it stops finished orders from being counted under "No tracking". Only standalone
+	// leaf texts of a few words are considered, and the status word must end the line, so item
+	// descriptions and button labels are ignored. The word list covers every Vinted UI language.
 	function getCardDeliveryHint(card) {
 		if (!card) return '';
-		const delivered = /^(?:delivered|picked up|afgeleverd|bezorgd|opgehaald|livr[eé]e?s?|retir[eé]s?|entregad[oa]s?|recogid[oa]s?|recibido|zugestellt|consegnat[oa]?|dostarczon[ayoe]|odebran[aeoy]?|doru[cč]en[yoée]?|vyzvednut[oy]?|vyzdvihnut[ée]?|pristatyt[ai]?|pieg[aā]d[aā]t[as]?|levererad|uth[aä]mtad|livrata|entregue|toimitett[ua]?|noudett[uai]?|kohale[ -]toimetatud|k[äa]ttes|ké?zbesítve|[áa]tv[eé]ve|dostavljen[oa]?|prevzet[oa]?|completed|complete|done|voltooid|afgerond|termin[eé]e?s?|abgeschlossen|completad[oa]s?|completat[oa]?|conclu[ií]d[oa]s?|zakończon[ayea]|dokon[cč]en[oyée]?|slutf[öo]rd|zaključen[oa]?|lõpetatud|baigt(?:as|a|os|ai|i|o)?|pabeigt[as]?|teljesítve|finalizad[oa]?|conclu[ií]do|komplet[éé]?)$/i;
-		for (const node of card.querySelectorAll('div, span, p, li, h2, h3, h4, strong, b')) {
+		const statusWord = '(?:'
+			+ 'delivered|picked up|afgeleverd|bezorgd|opgehaald|livr[eé]e?s?|retir[eé]s?|entregad[oa]s?|recogid[oa]s?|recibido|zugestellt|consegnat[oa]?|dostarczon[ayoe]|odebran[aeoy]?|doru[cč]en[áyaoée]?|vyzvednut[oy]?|vyzdvihnut[ée]?|pristatyt[ai]?|pieg[aā]d[aā]t[as]?|levererad|uth[aä]mtad|livrat[ăa]?|entregue|toimitett[ua]?|noudett[uai]?|suoritett[ua]?|kohale[ -]toimetatud|k[äa]ttes|ké?zbesítve|[áa]tv[eé]ve|dostavljen[oa]?|prevzet[oa]?|zavr[sš]en[oa]?|isporu[cč]en[oa]?|afsluttet|leveret|finalizat[ăa]?|изпълнена|доставена|завершен[ао]?|παραδόθηκε|ολοκληρώθηκε'
+			+ '|completed|complete|voltooid|afgerond|termin[eé]e?s?|abgeschlossen|completad[oa]s?|completat[oa]?|conclu[ií]d[oa]s?|zakończon[ayea]|dokon[cč]en[áyaoée]?|slutf[öo]rd|zaključen[oa]?|lõpetatud|baigt(?:as|a|os|ai|i|o)?|pabeigt[as]?|teljesítve|finalizad[oa]?|conclu[ií]do|komplet[éé]?'
+			+ ')';
+		// The status word must come after a word start (whitespace, punctuation or line start) and be the
+		// last word of the line: "Order completed", "Commande terminée", "Voltooid", "Zamówienie zakończone".
+		const ending = new RegExp(`(?:^|[\\s\\p{P}])${statusWord}$`, 'iu');
+		for (const node of card.querySelectorAll('div, span, p, li, h2, h3, h4, strong, b, a, button')) {
 			if (node.children.length > 0) continue;
 			if (node.closest('[data-vinted-order-id], [data-vinted-loading-id], [data-vinted-tracking-toolbar]')) continue;
 			const text = (node.textContent ?? '').replace(/\s+/g, ' ').trim();
 			if (text.length < 3 || text.length > 40) continue;
-			if (delivered.test(text)) return 'delivered';
+			if (ending.test(text.replace(/[.!…]+$/u, ''))) return 'delivered';
 		}
 		return '';
 	}
