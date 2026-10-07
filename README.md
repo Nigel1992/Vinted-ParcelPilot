@@ -1,192 +1,762 @@
 # Vinted ParcelPilot
 
-Vinted ParcelPilot is a userscript that makes Vinted's orders page more useful by showing parcel details directly inside each order card.
+[![GreasyFork](https://img.shields.io/badge/Install-GreasyFork-670000?logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+[![Version](https://img.shields.io/badge/version-1.5.4-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+[![Userscript](https://img.shields.io/badge/type-Userscript-orange)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+[![License](https://img.shields.io/badge/license-Custom%20Non--Commercial-lightgrey)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 
-It adds a quick **My Orders** shortcut and displays available shipment information such as the carrier, tracking ID, tracking page, latest shipment update, estimated delivery, and seller location when Vinted shares it.
+**Vinted ParcelPilot** is a feature-rich userscript that turns Vinted's order page into a much more useful parcel tracking dashboard.
 
-[Install on GreasyFork](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+It automatically detects tracking information, identifies carriers, shows shipment status and delivery estimates, tracks transit time, provides direct tracking links, and adds powerful filtering, sorting, notes, tags, CSV export, caching, notifications, and more.
 
-![Vinted ParcelPilot screenshot](https://greasyfork.s3.us-east-2.amazonaws.com/w0fgyilq7ap421pngq4f79ablh8t)
+> Built for Vinted users who want more useful parcel tracking without having to open every order individually.
 
-## What's new in 1.5.4
+---
 
-Compared with 1.5.3, this patch prevents scheduled page scans from running while Notes or Tags is focused, so focus remains in the active field while typing.
+## Screenshots
 
-Compared with 1.5.2, this patch:
+<details>
+<summary><strong>Parcel Dashboard</strong></summary>
 
-- Makes Notes and Tags compact fields instead of letting them expand across the whole order card.
-- Keeps the Notes field auto-growing only as far as its content requires, with a practical maximum height.
-- Prevents Vinted's order-card event handlers from receiving typing, focus and pointer events from Tags and Notes, so focus stays in the field while typing.
+Shows the main ParcelPilot dashboard with parcel information, shipment status, tracking details, delivery estimates, and controls.
 
-Compared with 1.5.1, this patch:
+<img width="816" height="307" alt="Vinted ParcelPilot parcel dashboard" src="https://github.com/user-attachments/assets/249ec24d-43fe-4182-bd49-73d83957cd5e" />
 
-- Automatically grows the Notes field vertically as text is entered.
-- Adjusts the Tags field width to the entered content within the available card width.
-- Labels the auto-refresh number as an interval in minutes, so the value `10` clearly means refresh every 10 minutes.
+</details>
 
-Compared with 1.5.0, the fixed Options card is now positioned in the lower-left corner on desktop and mobile.
+<details>
+<summary><strong>Parcel Details</strong></summary>
 
-Compared with 1.4.1, this release:
+Shows the detailed shipment information displayed for an individual order.
 
-- Adds clear **Notes** and **Tags** labels above the local fields.
-- Places the overview and sorting controls in a full horizontal row below the two status panels.
-- Makes the Options panel permanently visible as a compact, highlighted floating card that follows the page while scrolling without covering the main toolbar.
+<img width="287" height="261" alt="Vinted ParcelPilot parcel details" src="https://github.com/user-attachments/assets/eb4c12cf-b717-48ea-b3f6-96f1fec0f77c" />
 
-The main toolbar remains in its normal page position. The Options card stays visible while scrolling and remains compact so it does not cover the main order content.
+</details>
 
-Compared with 1.3.0, this release:
+<details>
+<summary><strong>Options & Controls</strong></summary>
 
-- Turns the controls into a floating sticky menu that remains available while scrolling.
-- Gives the menu a clearer card layout, spacing, shadow and mobile-friendly behaviour.
-- Makes every sort option respond to ascending and descending direction, including parcel status.
-- Sorts delivery estimates using their underlying date instead of the localized display text, and keeps missing values at the bottom.
+Shows the ParcelPilot options, filters, sorting controls, refresh settings, and other dashboard controls.
 
-Compared with 1.2.2, this release improves the toolbar:
+<img width="798" height="402" alt="Vinted ParcelPilot options and controls" src="https://github.com/user-attachments/assets/38c84fdf-92b1-47aa-85d3-810ba55de48e" />
 
-- Parcel status, order status, options and tools now have separate visual panels with explanatory text.
-- Sort controls are explicitly labelled and support both ascending (low to high) and descending (high to low) order.
-- The selected sort direction is remembered locally.
+</details>
 
-Compared with 1.2.1, this patch:
+---
 
-- Keeps the cursor in the note and tag fields while typing, even when Vinted updates the page.
-- Stops order-card click handlers from interfering with note and tag input.
-- Removes the theme selector and all ParcelPilot light/dark mode logic.
+## Overview
 
-Compared with 1.2.0, this patch improves local notes and tags:
+Vinted ParcelPilot enhances the Vinted **My Orders** page with a dedicated parcel-tracking layer.
 
-- Notes use a readable multi-line field with stronger contrast and visible focus styling.
-- Notes and tags are saved automatically while typing, with the button still available for immediate saving.
+Instead of opening each order separately, you can see important shipment information directly from one dashboard.
 
-Compared with 1.1.0, this release adds:
+### What ParcelPilot can show
 
-- A local dashboard with shipment counts, manual refresh, automatic refresh and configurable refresh intervals.
-- A local cache to reduce repeated Vinted API requests, with a manual cache-clearing refresh.
-- Sorting by status, latest update, estimated delivery, carrier or time in transit.
-- CSV export of the visible parcel data, including local notes and tags.
-- Per-order local notes and comma-separated local tags, stored only in this browser.
-- Optional browser notifications when a cached parcel changes status.
-- Stale-update highlighting for parcels without a recent carrier update.
+- Product name
+- Product price
+- Carrier
+- Tracking number
+- Shipment status
+- Latest carrier update
+- Estimated delivery
+- Seller location
+- Days in transit
+- Time since the latest update
+- Direct carrier tracking link
+- Copy tracking-number button
+- Notes
+- Tags
 
-Compared with the remote 1.0.0 baseline, this release adds:
+It also provides filtering, sorting, automatic refreshing, caching, notifications, CSV export, compact mode, and more.
 
-- A complete parcel card with product, price, carrier, shipment status, tracking details, delivery estimate, latest update, and seller location.
-- Status badges, transit-day counts, overdue-delivery highlighting, carrier logos, and carrier tracking-link fallbacks.
-- One-click tracking-number copying and clear empty/error states with retry support.
-- Combined order-status and parcel-status filtering in a single toolbar.
-- Compact mode, animation controls, seller-location and carrier-logo toggles, debug logging, and remembered settings.
-- Broader carrier recognition and localized labels across supported Vinted domains.
+---
 
 ## Features
 
-- Adds a convenient **My Orders** shortcut to the Vinted header.
-- Shows a parcel card on `/my_orders` per order: product and price on top, a uniform shipment bar with carrier, status, tracking ID, copy button and tracking link, then a delivery details list. Every field is filled from the data available for that order, so partial records still render cleanly.
-- Displays carrier name, carrier branding, tracking ID, and a tracking page link when available.
-- Shows a status badge per parcel: on the way, ready for pickup, label created, delayed, or delivered.
-- Copies the tracking number to your clipboard with one click, handy when contacting a seller or support.
-- Builds a carrier tracking link for you when Vinted does not supply one, based on the carrier and tracking code.
-- Shows how long a parcel has been in transit and how long ago the last update was.
-- Counts transit days from the first real carrier scan, so creating a tracking code or label does not start the count early.
-- Uses the singular form for one day ("1 day in transit").
-- Highlights parcels whose estimated delivery date has passed without a delivery.
-- Recognises 18 carriers with their branding, including DHL, PostNL, DPD, GLS, UPS, bpost, InPost, Homerr, Relais Colis, Chronopost, Colissimo, Royal Mail, SEUR, Correos, Yodel, Packeta, Mondial Relay and Evri.
-- Explains empty states instead of staying silent: not shipped yet, no tracking code, or a load failure with a retry button.
-- Adds a toolbar above `/my_orders` that combines Vinted's own order status filter with parcel status filters and settings, so there is only one menu.
-- Includes a compact mode for users with many orders.
-- Shows the seller's shared location for bought orders when Vinted provides it.
-- Supports many Vinted country domains.
-- Uses localized interface labels based on the current Vinted page language.
-- Keeps preferences, cache, notes, tags and notification settings locally in the browser; no ParcelPilot server is used.
+### 📦 Parcel Dashboard
 
-## Settings
+ParcelPilot adds a dedicated parcel section to the Vinted orders page.
 
-A toolbar appears above your order list on `/my_orders`, divided into three labelled groups:
+Each order can display:
 
-| Group | Options | Description |
-| --- | --- | --- |
-| Order status | All / In progress / Completed / Cancelled | Vinted's own order filter, moved into this toolbar. Vinted's original bar is hidden so there is only one menu. The buttons keep Vinted's exact wording in your page language. |
-| Parcel status | All / In transit / Delayed / Delivered / No tracking | Show only the parcels you care about. |
-| Options | Compact, Animation, Seller location, Carrier logos, Debug | Display and loading preferences. |
+- Product
+- Price
+- Carrier
+- Tracking number
+- Current shipment status
+- Estimated delivery
+- Latest tracking event
+- Seller location
+- Transit duration
+- Time since the latest update
+- Tracking link
+- Copy tracking button
 
-The two status groups work together: pick a parcel status first, then narrow it down by order status, or the other way round.
+This makes it possible to quickly see the state of your shipments without opening every order individually.
 
-| Option | Description |
-| --- | --- |
-| Compact | One line per order with carrier, status, tracking code and estimate. The detail list is hidden. |
-| Animation | Play the loading animation. Turn off to load parcels without motion. |
-| Seller location | Show the seller's shared location for bought orders. |
-| Carrier logos | Use carrier logos when Vinted provides them, otherwise fall back to carrier colours. |
-| Debug | Log extra information to the browser console, including which shipment event started the "days in transit" count and why, plus the detected Vinted order filter. |
-| Auto refresh | Refresh active order data at the configured interval. |
-| Refresh interval | Choose how often automatic refresh runs, in minutes. |
-| Notifications | Ask for browser permission and notify you when a parcel status changes. |
+---
 
-The toolbar also provides sorting, a dashboard, a manual refresh button and CSV export. Parcel data is cached locally for five minutes by default. A parcel with no carrier update for five days is highlighted as stale; these thresholds and local settings can be changed in the userscript settings object.
+### 🚚 Automatic Carrier Recognition
 
-If Vinted's order filter cannot be found on the page, the toolbar says so instead of showing buttons that would do nothing, and Vinted's own bar stays visible.
+ParcelPilot automatically detects the shipping carrier associated with the tracking information.
 
-Settings are remembered in `localStorage` and reused the next time you open Vinted.
+Supported carriers currently include:
 
-## Supported Sites
+| Carrier | Supported |
+|---|:---:|
+| DHL | ✅ |
+| PostNL | ✅ |
+| DPD | ✅ |
+| GLS | ✅ |
+| UPS | ✅ |
+| bpost | ✅ |
+| InPost | ✅ |
+| Homerr | ✅ |
+| Relais Colis | ✅ |
+| Chronopost | ✅ |
+| Colissimo | ✅ |
+| Royal Mail | ✅ |
+| SEUR | ✅ |
+| Correos | ✅ |
+| Yodel | ✅ |
+| Packeta | ✅ |
+| Mondial Relay | ✅ |
+| Evri | ✅ |
 
-The script runs on many Vinted domains, including:
+Carrier detection is based on the shipment and tracking information available from Vinted.
 
-`vinted.nl`, `vinted.be`, `vinted.de`, `vinted.fr`, `vinted.es`, `vinted.it`, `vinted.co.uk`, `vinted.com`, and more.
+---
 
-## Installation
+### 🔗 Automatic Tracking Links
 
-1. Install a userscript manager such as Tampermonkey or Violentmonkey.
-2. Install [Vinted ParcelPilot from GreasyFork](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot), or add `vinted.js` manually to your userscript manager.
-3. Open Vinted while logged in and go to **My Orders**.
+When ParcelPilot recognizes a carrier, it can generate a direct tracking link.
 
-## FAQ
+Clicking the tracking link takes you directly to the carrier's tracking page with the shipment information.
 
-### What does a parcel card look like?
+No need to manually search for the carrier or copy the tracking number.
 
-Each order gets one card, in three regions:
+---
 
-1. **Headline** — product name and price, read from the order card itself and linked to the listing. Omitted entirely when the order has no product data.
-2. **Shipment bar** — one row carrying the carrier chip, the status badge, the days in transit, the tracking ID with its copy button, and a link to the carrier's tracking page. The bar keeps its shape whatever is missing: no carrier, no code, or no estimate.
-3. **Delivery details** — a label/value list holding latest update, estimated delivery, and the seller's location. Each row is added only when that data exists, so the list never shows an empty line. The update message and its date always sit on separate lines, so they never run together.
+### 📋 Copy Tracking Number
 
-Nothing is hardcoded into the layout. The product falls back from the link title to the image alt text to the link text; the price skips struck-through original amounts and picks the one actually charged; the latest update shows a message without a time, a time without a message, or both. Rows that are missing are left out rather than rendered blank.
+A dedicated copy button makes it easy to copy a tracking number to the clipboard.
 
-Delivered parcels show no days-in-transit counter, and a parcel with no shipment data at all becomes a short notice row instead of a card. Compact mode keeps the headline and shipment bar and hides the detail list.
+Useful when:
 
-### How does the order status filter work?
+- Checking a shipment manually
+- Contacting the carrier
+- Sharing tracking information
+- Searching for additional delivery information
 
-Only Vinted knows which orders count as completed or cancelled, so the toolbar reuses Vinted's own filter control instead of guessing. Clicking a button in the *Order status* group drives that same control, which makes Vinted reload the list. Vinted's original filter bar is hidden so you have a single menu.
+---
 
-Your *Parcel status* choice is remembered separately and re-applied after each reload, so the two groups combine.
+### 📊 Smart Shipment Status
 
-### Why do some tracking updates appear in another language?
+ParcelPilot organizes shipments into useful categories.
 
-Vinted ParcelPilot asks Vinted for shipment information using the current page language, but the actual tracking message is provided by Vinted or the shipping carrier. Sometimes that source data is returned in another language.
+#### Shipment statuses
 
-### Why is some information missing?
+- **In transit**
+- **Ready for pickup**
+- **Label created**
+- **Delayed**
+- **Delivered**
+- **Not shipped yet**
+- **No tracking code**
+- **Load failure**
 
-The script can only display information that Vinted makes available for that order. If there is no tracking ID, estimated delivery, carrier update, or shared seller location, the script cannot invent it. In that case it tells you which situation applies: not shipped yet, no tracking code, or a failed load.
+When shipment information cannot be loaded, ParcelPilot provides a retry option instead of silently failing.
 
-### Does this script collect or send my data elsewhere?
+---
 
-No. The script runs in your browser and uses Vinted's own pages and APIs while you are logged in. It does not send your order or tracking information to any external server.
+### ⏱️ Transit Time Tracking
 
-### Why do I need to be logged in?
+ParcelPilot tracks how long a shipment has actually been in transit.
 
-Your order and shipment information is only available through your own Vinted account, so the script can only show it when Vinted can access your orders.
+The transit counter starts from the **first real carrier scan**, rather than from label creation.
 
-### Is the screenshot real order data?
+This prevents shipments from appearing to have been travelling for days when the carrier has not actually received the parcel yet.
 
-No. The screenshot uses mock or hidden data and does not show real tracking IDs, names, addresses, or private order details.
+For example:
 
-## Privacy
+```text
+Label created
+      ↓
+Parcel handed to carrier
+      ↓
+First carrier scan  ← Transit timer starts here
+      ↓
+In transit
+      ↓
+Delivered
+````
 
-Vinted ParcelPilot does not use third-party servers, analytics, tracking pixels, or external data collection. All displayed data comes from Vinted pages and Vinted API responses available to your logged-in browser session.
+This also makes the transit-time information much more useful for comparing delivery performance.
 
-## License
+---
 
-Custom Non-Commercial Attribution License.
+### 🕒 Time Since Latest Update
 
-You may use, modify, and share this project for personal and non-commercial purposes. You may not sell it or use it commercially. Modified versions must keep credit to Nigel1992 and link back to the original repository:
+ParcelPilot shows how long ago the latest carrier update occurred.
 
-https://github.com/Nigel1992/Vinted-ParcelPilot
+For example:
+
+```text
+Last update: 2 hours ago
+```
+
+or:
+
+```text
+Last update: 1 day ago
+```
+
+This makes it easier to spot shipments that have not received a recent tracking update.
+
+---
+
+### ⚠️ Stale Shipment Detection
+
+If a shipment has not received a carrier update for an extended period, ParcelPilot can highlight it as stale.
+
+By default, shipments can be considered stale after **5 days without a carrier update**.
+
+This helps identify parcels that may require attention.
+
+---
+
+### 📍 Seller Location
+
+When available, ParcelPilot also displays the seller's shared location.
+
+This can provide useful context when estimating how long a shipment may take.
+
+---
+
+## 🔎 Filtering
+
+ParcelPilot provides both Vinted's order-status filtering and its own parcel-status filtering.
+
+### Order status
+
+The order-status filter uses Vinted's own filtering system rather than attempting to recreate Vinted's order logic.
+
+This helps keep the filtering behaviour consistent with Vinted itself.
+
+### Parcel status
+
+ParcelPilot adds shipment-specific filters:
+
+* **All**
+* **In transit**
+* **Delayed**
+* **Delivered**
+* **No tracking**
+
+The two filtering systems can be used together.
+
+For example, you can show only:
+
+```text
+Vinted completed orders
++
+Parcels currently in transit
+```
+
+---
+
+## ↕️ Sorting
+
+ParcelPilot supports sorting your visible parcels by:
+
+* Shipment status
+* Latest update
+* Estimated delivery
+* Carrier
+* Time in transit
+
+Sorting can be performed:
+
+* Ascending
+* Descending
+
+Estimated delivery dates are sorted using the underlying date value rather than the displayed text.
+
+Shipments without an estimated delivery date are placed appropriately at the bottom of the list.
+
+---
+
+## 📝 Local Notes
+
+You can add personal notes to individual parcels.
+
+Examples:
+
+```text
+Gift for birthday
+```
+
+```text
+Check package when delivered
+```
+
+```text
+Seller said delivery may be delayed
+```
+
+Notes are stored locally in your browser.
+
+They are not uploaded to a ParcelPilot server.
+
+### Auto-save
+
+Notes are automatically saved while you type.
+
+The notes field also grows automatically to make longer notes easier to edit.
+
+---
+
+## 🏷️ Local Tags
+
+Parcels can also be assigned custom tags.
+
+For example:
+
+```text
+Gift
+Important
+Waiting
+Problem
+Personal
+```
+
+Tags are stored locally in your browser and remain associated with the corresponding shipment/order.
+
+The tag field automatically adjusts to its contents while remaining compact.
+
+---
+
+## 📤 CSV Export
+
+ParcelPilot can export the currently visible parcel information as a CSV file.
+
+The export can include information such as:
+
+* Product
+* Price
+* Carrier
+* Tracking number
+* Status
+* Estimated delivery
+* Latest update
+* Seller location
+* Transit time
+* Notes
+* Tags
+
+Only the currently visible/filtered parcel data is exported.
+
+This makes it useful for keeping your own shipment records or analysing delivery times.
+
+---
+
+## 🔄 Automatic Refresh
+
+ParcelPilot can automatically refresh parcel information at a configurable interval.
+
+This is useful when waiting for an important shipment because you do not have to manually reload the page.
+
+The refresh interval can be configured in the ParcelPilot options.
+
+---
+
+## 🔔 Browser Notifications
+
+Optional browser notifications can alert you when a cached parcel status changes.
+
+For example:
+
+```text
+Shipment status changed
+Your parcel has been delivered.
+```
+
+Notifications are optional and can be disabled.
+
+ParcelPilot only checks for changes when shipment information is refreshed.
+
+---
+
+## 💾 Local Caching
+
+ParcelPilot uses a local browser cache to reduce unnecessary requests.
+
+The default cache duration is:
+
+```text
+5 minutes
+```
+
+This helps avoid repeatedly requesting the same tracking information when navigating around the page.
+
+You can also manually clear the cache and force a fresh refresh.
+
+### What is stored locally?
+
+Depending on enabled features, ParcelPilot can store:
+
+* Parcel tracking data
+* Preferences
+* Notes
+* Tags
+* Notification settings
+* Cache information
+
+This information stays in your browser.
+
+---
+
+## 🧹 Clear Cached Data
+
+ParcelPilot provides a way to clear cached parcel information.
+
+This is useful when:
+
+* Tracking information appears outdated
+* A carrier update has just happened
+* You want to force a fresh lookup
+* Troubleshooting tracking problems
+
+After clearing the cache, ParcelPilot can retrieve fresh shipment information.
+
+---
+
+## 📱 Compact Mode
+
+Compact mode reduces the amount of space used by the ParcelPilot interface.
+
+This is useful when you have many orders and want to see more shipments on screen at once.
+
+You can switch between the normal and compact layouts through the options.
+
+---
+
+## ⚙️ Options
+
+ParcelPilot provides configurable options for its main features.
+
+| Option           | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| Auto refresh     | Automatically refresh parcel information        |
+| Refresh interval | Controls how frequently automatic refresh runs  |
+| Cache duration   | Controls how long parcel information is cached  |
+| Notifications    | Enable or disable shipment status notifications |
+| Compact mode     | Use a more compact parcel layout                |
+| Debug mode       | Enable additional diagnostic logging            |
+| Clear cache      | Remove locally cached tracking data             |
+
+---
+
+## 🐞 Debug Mode
+
+ParcelPilot includes a debug mode for troubleshooting.
+
+When enabled, additional information can be written to the browser console.
+
+Debug information can include:
+
+* Detected carrier
+* Tracking information
+* Shipment events
+* Transit-start event
+* Reason the transit counter started
+* Detected Vinted order filter
+* Cache behaviour
+* Refresh behaviour
+* Shipment parsing information
+
+This can be useful when reporting a problem or investigating why a particular shipment is not being detected correctly.
+
+---
+
+## 🧠 Smart Transit Detection
+
+ParcelPilot does not simply calculate transit time from the date a shipping label was created.
+
+Instead, it attempts to identify the first meaningful carrier event indicating that the shipment has actually entered the carrier network.
+
+For example:
+
+```text
+Shipping label created
+        ↓
+Waiting for parcel
+        ↓
+Parcel received by carrier
+        ↓
+Transit starts
+        ↓
+Parcel moving through network
+        ↓
+Delivered
+```
+
+This produces a more realistic transit duration.
+
+Debug mode can show which event caused the transit timer to start and why it was selected.
+
+---
+
+## 🌍 Supported Vinted Sites
+
+ParcelPilot is designed to work across Vinted's supported country domains.
+
+The interface follows the language of the current Vinted page where possible.
+
+This means ParcelPilot can adapt its labels to the language Vinted is currently using rather than forcing a separate language configuration.
+
+---
+
+## 🔐 Privacy
+
+ParcelPilot does **not** require a ParcelPilot account.
+
+There is no ParcelPilot backend collecting your shipment data.
+
+Your local preferences, notes, tags, cache, and notification settings are stored in your browser.
+
+Parcel tracking information is retrieved as required by the userscript and Vinted's available shipment information.
+
+### No external ParcelPilot database
+
+There is no central ParcelPilot database containing:
+
+* Your orders
+* Your tracking numbers
+* Your notes
+* Your tags
+* Your Vinted account information
+
+Local data remains on your device/browser.
+
+---
+
+## 🛠️ Installation
+
+### Recommended: GreasyFork
+
+Install the latest release directly from GreasyFork:
+
+**[https://greasyfork.org/en/scripts/598835-vinted-parcelpilot](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)**
+
+You will need a userscript manager such as:
+
+* Tampermonkey
+* Violentmonkey
+* Another compatible userscript manager
+
+After installing the script:
+
+1. Open Vinted.
+2. Go to **My Orders**.
+3. Open the ParcelPilot dashboard.
+4. ParcelPilot will begin processing the available orders.
+
+---
+
+## 🧩 Development Installation
+
+If you want to develop or test ParcelPilot directly from GitHub:
+
+```bash
+git clone https://github.com/Nigel1992/Vinted-ParcelPilot.git
+```
+
+Then install the userscript from the repository using your preferred userscript manager.
+
+Repository:
+
+**[https://github.com/Nigel1992/Vinted-ParcelPilot](https://github.com/Nigel1992/Vinted-ParcelPilot)**
+
+---
+
+## 🐛 Reporting Issues
+
+Before reporting an issue, try the following:
+
+1. Make sure you are using the latest ParcelPilot version.
+2. Refresh the Vinted page.
+3. Clear the ParcelPilot cache.
+4. Check whether the issue affects one shipment or multiple shipments.
+5. Enable debug mode if necessary.
+6. Check the browser console for relevant errors.
+
+When reporting an issue, please include:
+
+* ParcelPilot version
+* Browser
+* Userscript manager
+* Vinted country/domain
+* Carrier
+* Whether the shipment has a tracking number
+* What ParcelPilot displays
+* What you expected to happen
+* Relevant console/debug information
+
+Avoid posting personal information or complete tracking details publicly.
+
+---
+
+## 📝 Changelog
+
+### 1.5.4
+
+* Improved interaction between Vinted order cards and ParcelPilot inputs.
+* Prevented scheduled page scans while Notes or Tags fields are focused.
+* Prevented Vinted order-card handlers from receiving typing events from Notes and Tags.
+* Prevented Vinted order-card handlers from receiving focus events from Notes and Tags.
+* Prevented Vinted order-card handlers from receiving pointer events from Notes and Tags.
+* Improved editing reliability for local notes and tags.
+* Preserved normal ParcelPilot interaction while editing fields.
+
+### 1.5.x
+
+* Improved parcel dashboard.
+* Improved shipment filtering.
+* Improved sorting.
+* Improved local notes and tags.
+* Improved caching.
+* Improved refresh handling.
+* Improved carrier detection.
+* Improved shipment status handling.
+* Improved transit-time calculation.
+* Improved debug logging.
+* Improved Vinted integration.
+
+### 1.4.x
+
+* Added additional carrier support.
+* Improved tracking links.
+* Improved shipment status detection.
+* Added additional filtering and sorting functionality.
+* Improved delivery estimates.
+* Improved parcel information display.
+
+### 1.3.x
+
+* Added local notes.
+* Added local tags.
+* Added CSV export.
+* Added automatic refresh options.
+* Added configurable caching.
+* Added compact mode.
+* Added additional shipment information.
+
+### 1.2.x
+
+* Added improved carrier recognition.
+* Added tracking links.
+* Added copy tracking functionality.
+* Improved shipment information handling.
+* Improved order-page integration.
+
+### 1.1.x
+
+* Improved shipment detection.
+* Improved parcel status handling.
+* Improved error handling.
+* Improved compatibility with Vinted's order page.
+
+### 1.0.x
+
+Initial public ParcelPilot release with the core parcel tracking functionality.
+
+---
+
+## 🗺️ Roadmap
+
+Possible future improvements include:
+
+* Additional carrier integrations
+* More advanced shipment analytics
+* More delivery-history statistics
+* Improved international carrier detection
+* Additional notification options
+* Further dashboard customization
+* Additional export formats
+* More detailed shipment-event history
+* Continued compatibility improvements as Vinted changes its website
+
+The roadmap may change depending on Vinted's website and API changes.
+
+---
+
+## 🤝 Contributing
+
+Contributions, bug reports, feature requests, and improvements are welcome.
+
+Repository:
+
+**[https://github.com/Nigel1992/Vinted-ParcelPilot](https://github.com/Nigel1992/Vinted-ParcelPilot)**
+
+If you want to contribute code:
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes.
+4. Test the userscript on Vinted.
+5. Submit a pull request.
+
+Please keep changes focused and avoid introducing unnecessary dependencies.
+
+---
+
+## 📄 License
+
+Vinted ParcelPilot is released under the **Custom Non-Commercial Attribution License**.
+
+### You may
+
+* Use the project for personal purposes.
+* Modify the project.
+* Share modified versions.
+* Study and adapt the source code.
+
+### You may not
+
+* Sell ParcelPilot itself.
+* Use ParcelPilot or modified versions for commercial purposes without permission.
+* Remove the original attribution.
+
+Modified versions must retain credit to **Nigel1992** and include a link to the original repository.
+
+For the complete license terms, see the repository's license file.
+
+---
+
+## 🔗 Links
+
+* **GreasyFork:** [https://greasyfork.org/en/scripts/598835-vinted-parcelpilot](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+* **GitHub:** [https://github.com/Nigel1992/Vinted-ParcelPilot](https://github.com/Nigel1992/Vinted-ParcelPilot)
+
+---
+
+## ⭐ Support the Project
+
+If ParcelPilot is useful to you, consider:
+
+* ⭐ Starring the GitHub repository
+* 🐛 Reporting bugs
+* 💡 Suggesting improvements
+* 🔧 Contributing code
+* 📣 Sharing the project with other Vinted users
+
+Every bit of feedback helps improve ParcelPilot.
+
+---
+
+<p align="center">
+  <strong>Vinted ParcelPilot</strong><br>
+  Better parcel tracking directly inside Vinted.
+</p>
+```
