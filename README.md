@@ -29,7 +29,8 @@ Shows the main ParcelPilot dashboard with parcel information, shipment status, t
 
 Shows the detailed shipment information displayed for an individual order.
 
-<img width="287" height="261" alt="Vinted ParcelPilot parcel details" src="https://github.com/user-attachments/assets/eb4c12cf-b717-48ea-b3f6-96f1fec0f77c" />
+<img width="798" height="402" alt="Vinted ParcelPilot options and controls" src="https://github.com/user-attachments/assets/38c84fdf-92b1-47aa-85d3-810ba55de48e" />
+
 
 </details>
 
@@ -38,7 +39,8 @@ Shows the detailed shipment information displayed for an individual order.
 
 Shows the ParcelPilot options, filters, sorting controls, refresh settings, and other dashboard controls.
 
-<img width="798" height="402" alt="Vinted ParcelPilot options and controls" src="https://github.com/user-attachments/assets/38c84fdf-92b1-47aa-85d3-810ba55de48e" />
+<img width="287" height="261" alt="Vinted ParcelPilot parcel details" src="https://github.com/user-attachments/assets/eb4c12cf-b717-48ea-b3f6-96f1fec0f77c" />
+
 
 </details>
 
