@@ -2,8 +2,13 @@
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
 // @version      1.5.9
-// @description  Adds shipment dashboards, filters, sorting, local notes, exports, notifications, caching and tracking details to Vinted orders.
+// @description  Vinted ParcelPilot adds a parcel-tracking dashboard to Vinted's My Orders page: automatic carrier detection, tracking numbers, shipment status, delivery estimates, transit time, tracking links, filters, sorting, notes, tags, CSV export and notifications.
+// @author       Nigel1992
 // @license      Custom Non-Commercial Attribution License
+// @homepageURL  https://github.com/Nigel1992/Vinted-ParcelPilot
+// @supportURL   https://github.com/Nigel1992/Vinted-ParcelPilot/issues
+// @downloadURL  https://raw.githubusercontent.com/Nigel1992/Vinted-ParcelPilot/main/vinted-parcelpilot.user.js
+// @updateURL    https://raw.githubusercontent.com/Nigel1992/Vinted-ParcelPilot/main/vinted-parcelpilot.user.js
 // @include      /^https:\/\/(?:www\.)?vinted\.(?:at|be|com|com\.au|co\.uk|cz|de|dk|ee|es|fi|fr|gr|hr|hu|ie|it|lt|lu|lv|nl|pl|pt|ro|se|si|sk)\/.*$/
 // @grant        none
 // @run-at       document-idle

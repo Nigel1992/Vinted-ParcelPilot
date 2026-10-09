@@ -1,15 +1,39 @@
-# Vinted ParcelPilot
+<div align="center">
 
-[![GreasyFork](https://img.shields.io/badge/Install-GreasyFork-670000?logo=greasyfork&logoColor=white)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
-[![Version](https://img.shields.io/badge/version-1.5.9-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot)
+# 📦 Vinted ParcelPilot
+
+**Turn Vinted's "My Orders" page into a powerful parcel-tracking dashboard.**
+
+No more opening every order one by one — see carriers, tracking numbers, shipment status, delivery estimates and transit times at a glance.
+
+[![Install on GreasyFork](https://img.shields.io/badge/⬇_Install-GreasyFork-670000?logo=greasyfork&logoColor=white&style=for-the-badge)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+[![Install from GitHub](https://img.shields.io/badge/⬇_Install-GitHub_Userscript-181717?logo=github&logoColor=white&style=for-the-badge)](https://raw.githubusercontent.com/Nigel1992/Vinted-ParcelPilot/main/vinted-parcelpilot.user.js)
+
+[![Version](https://img.shields.io/badge/version-1.5.9-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot/releases)
+[![GitHub stars](https://img.shields.io/github/stars/Nigel1992/Vinted-ParcelPilot?style=social)](https://github.com/Nigel1992/Vinted-ParcelPilot/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/Nigel1992/Vinted-ParcelPilot)](https://github.com/Nigel1992/Vinted-ParcelPilot/issues)
+[![Last commit](https://img.shields.io/github/last-commit/Nigel1992/Vinted-ParcelPilot)](https://github.com/Nigel1992/Vinted-ParcelPilot/commits/main)
 [![Userscript](https://img.shields.io/badge/type-Userscript-orange)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 [![License](https://img.shields.io/badge/license-Custom%20Non--Commercial-lightgrey)](https://github.com/Nigel1992/Vinted-ParcelPilot)
 
-**Vinted ParcelPilot** is a feature-rich userscript that turns Vinted's order page into a much more useful parcel tracking dashboard.
+**[Install](#-installation) · [Features](#-features) · [Screenshots](#screenshots) · [Report an issue](https://github.com/Nigel1992/Vinted-ParcelPilot/issues) · [GreasyFork](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)**
 
-It automatically detects tracking information, identifies carriers, shows shipment status and delivery estimates, tracks transit time, provides direct tracking links, and adds powerful filtering, sorting, notes, tags, CSV export, caching, notifications, and more.
+</div>
 
-> Built for Vinted users who want more useful parcel tracking without having to open every order individually.
+---
+
+**Vinted ParcelPilot** is a free userscript that adds parcel tracking to **Vinted**. It automatically detects tracking information, identifies **18+ carriers** (DHL, PostNL, DPD, GLS, UPS, InPost, bpost, Evri and more), shows shipment status and delivery estimates, tracks transit time, provides direct tracking links, and adds powerful **filtering, sorting, notes, tags, CSV export, caching and browser notifications**.
+
+> Built for Vinted buyers and sellers who want better parcel tracking **without opening every order individually**.
+
+### Why use ParcelPilot?
+
+- 🔍 **All your Vinted parcels in one dashboard** — carrier, tracking number, status and ETA.
+- 🚚 **Automatic carrier recognition** for 18+ shipping carriers and tracking links.
+- 📊 **Filter, sort & export** — find delayed shipments fast and save records as CSV.
+- 📝 **Local notes & tags** per parcel — stored privately in your browser.
+- 🔔 **Optional notifications** when a shipment status changes.
+- 🔐 **No account, no backend** — everything stays on your device.
 
 ---
 
@@ -557,36 +581,42 @@ Local data remains on your device/browser.
 
 ## 🛠️ Installation
 
-### Recommended: GreasyFork
+First, install a userscript manager such as:
 
-Install the latest release directly from GreasyFork:
-
-**[https://greasyfork.org/en/scripts/598835-vinted-parcelpilot](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)**
-
-You will need a userscript manager such as:
-
-* Tampermonkey
-* Violentmonkey
+* [Tampermonkey](https://www.tampermonkey.net/) (Chrome, Edge, Firefox, Safari, Opera)
+* [Violentmonkey](https://violentmonkey.github.io/) (Chrome, Edge, Firefox)
 * Another compatible userscript manager
+
+Then install ParcelPilot using one of the options below.
+
+### Option 1 — GreasyFork (recommended, auto-updates)
+
+**[➜ Install Vinted ParcelPilot on GreasyFork](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)**
+
+### Option 2 — GitHub (latest file)
+
+**[➜ Install vinted-parcelpilot.user.js from GitHub](https://raw.githubusercontent.com/Nigel1992/Vinted-ParcelPilot/main/vinted-parcelpilot.user.js)**
+
+Tampermonkey/Violentmonkey will detect the `.user.js` file and open the install prompt automatically.
 
 After installing the script:
 
-1. Open Vinted.
+1. Open [Vinted](https://www.vinted.com) and log in.
 2. Go to **My Orders**.
-3. Open the ParcelPilot dashboard.
-4. ParcelPilot will begin processing the available orders.
+3. The ParcelPilot dashboard loads above your orders.
+4. ParcelPilot begins processing the available orders automatically.
 
 ---
 
 ## 🧩 Development Installation
 
-If you want to develop or test ParcelPilot directly from GitHub:
+If you want to develop or test ParcelPilot directly from source:
 
 ```bash
 git clone https://github.com/Nigel1992/Vinted-ParcelPilot.git
 ```
 
-Then install the userscript from the repository using your preferred userscript manager.
+Then load `vinted-parcelpilot.user.js` as a local userscript in your userscript manager.
 
 Repository:
 
@@ -780,8 +810,10 @@ For the complete license terms, see the repository's license file.
 
 ## 🔗 Links
 
-* **GreasyFork:** [https://greasyfork.org/en/scripts/598835-vinted-parcelpilot](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+* **Install (GreasyFork):** [https://greasyfork.org/en/scripts/598835-vinted-parcelpilot](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
+* **Install (GitHub):** [vinted-parcelpilot.user.js](https://raw.githubusercontent.com/Nigel1992/Vinted-ParcelPilot/main/vinted-parcelpilot.user.js)
 * **GitHub:** [https://github.com/Nigel1992/Vinted-ParcelPilot](https://github.com/Nigel1992/Vinted-ParcelPilot)
+* **Issues & feature requests:** [https://github.com/Nigel1992/Vinted-ParcelPilot/issues](https://github.com/Nigel1992/Vinted-ParcelPilot/issues)
 
 ---
 
