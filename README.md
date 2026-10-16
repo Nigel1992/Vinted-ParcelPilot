@@ -9,7 +9,7 @@ No more opening every order one by one — see carriers, tracking numbers, shipm
 [![Install on GreasyFork](https://img.shields.io/badge/⬇_Install-GreasyFork-670000?logo=greasyfork&logoColor=white&style=for-the-badge)](https://greasyfork.org/en/scripts/598835-vinted-parcelpilot)
 [![Install from GitHub](https://img.shields.io/badge/⬇_Install-GitHub_Userscript-181717?logo=github&logoColor=white&style=for-the-badge)](https://raw.githubusercontent.com/Nigel1992/Vinted-ParcelPilot/main/vinted-parcelpilot.user.js)
 
-[![Version](https://img.shields.io/badge/version-1.5.9-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot/releases)
+[![Version](https://img.shields.io/badge/version-1.5.10-blue)](https://github.com/Nigel1992/Vinted-ParcelPilot/releases)
 [![GitHub stars](https://img.shields.io/github/stars/Nigel1992/Vinted-ParcelPilot?style=social)](https://github.com/Nigel1992/Vinted-ParcelPilot/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/Nigel1992/Vinted-ParcelPilot)](https://github.com/Nigel1992/Vinted-ParcelPilot/issues)
 [![Last commit](https://img.shields.io/github/last-commit/Nigel1992/Vinted-ParcelPilot)](https://github.com/Nigel1992/Vinted-ParcelPilot/commits/main)
@@ -652,6 +652,14 @@ Avoid posting personal information or complete tracking details publicly.
 ---
 
 ## 📝 Changelog
+
+### 1.5.10
+
+* Fixed the dashboard not appearing on **My Orders** after Vinted changed its order-card markup.
+* Order cards are now detected from the new `data-testid="my-orders-item"` element.
+* Order identity is now read from the card's `/inbox/<uuid>` conversation link. This UUID is the conversation id used by Vinted's messaging API, so tracking lookups continue to work unchanged. Numeric order ids are still supported.
+* Shipment status shown only on the card (for example the status icon's accessible title, "Status: Geannuleerd") is now recognized when the tracking API has no shipment data, so cancelled and completed orders keep their correct category.
+* Added a debug-mode diagnostic dump (candidate counts, order links, `data-testid` values, a sample card and its ancestor chain) that prints when no order cards are detected, to make future markup changes easier to diagnose.
 
 ### 1.5.9
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vinted ParcelPilot
 // @namespace    https://github.com/Nigel1992/Vinted-ParcelPilot
-// @version      1.5.9
+// @version      1.5.10
 // @description  Vinted ParcelPilot adds a parcel-tracking dashboard to Vinted's My Orders page: automatic carrier detection, tracking numbers, shipment status, delivery estimates, transit time, tracking links, filters, sorting, notes, tags, CSV export and notifications.
 // @author       Nigel1992
 // @license      Custom Non-Commercial Attribution License
@@ -199,7 +199,9 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 	}
 
 	function orderIdFromHref(href) {
-		const pathMatch = href.match(/\/(?:inbox|orders?|my_orders|transactions?)\/(\d+)(?:[/?#]|$)/i);
+		// Vinted now keys order cards by conversation: the card links to /inbox/<uuid>, and that
+		// uuid is the conversation id used by the messaging API. Numeric ids are still supported.
+		const pathMatch = href.match(/\/(?:inbox|orders?|my_orders|transactions?)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|\d+)(?:[/?#]|$)/i);
 		if (pathMatch) return pathMatch[1];
 		try {
 			const url = new URL(href, location.origin);
@@ -2529,7 +2531,7 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 		const endingFor = (word) => new RegExp(`(?:^|[\\s\\p{P}])${word}$`, 'iu');
 		const delivered = endingFor(deliveredWord);
 		const cancelled = endingFor(cancelledWord);
-		for (const node of card.querySelectorAll('div, span, p, li, h2, h3, h4, strong, b, a, button')) {
+		for (const node of card.querySelectorAll('div, span, p, li, h2, h3, h4, strong, b, a, button, title')) {
 			if (node.children.length > 0) continue;
 			if (node.closest('[data-vinted-order-id], [data-vinted-loading-id], [data-vinted-tracking-toolbar]')) continue;
 			const text = (node.textContent ?? '').replace(/\s+/g, ' ').trim();
@@ -2732,13 +2734,65 @@ en: { trackingId: 'Tracking ID', trackingPage: 'Tracking page', latestUpdate: 'L
 			'a[href], [data-order-id], [data-orderid], [data-transaction-id], [data-testid*="order"], [data-testid*="transaction"]',
 		)];
 		const cards = new Map();
+		let idLessCandidates = 0;
 		for (const candidate of candidates) {
 			const orderId = orderIdFromElement(candidate);
-			if (!orderId) continue;
+			if (!orderId) {
+				idLessCandidates += 1;
+				continue;
+			}
 			const card = findOrderCard(candidate);
 			if (card && !cards.has(orderId)) cards.set(orderId, card);
 		}
-		if (!cards.size) return;
+		if (!cards.size) {
+			// Vinted rewrites its markup regularly; dump enough context to spot the new
+			// order-card structure when detection comes up empty.
+			if (settings.debug) {
+				const orderLinks = [...document.querySelectorAll('a[href]')]
+					.map((link) => link.getAttribute('href'))
+					.filter((href) => /order|transaction|purchase|sale|inbox/i.test(href ?? ''))
+					.slice(0, 15);
+				const testIds = [...new Set([...document.querySelectorAll('[data-testid]')]
+					.map((node) => node.getAttribute('data-testid') ?? ''))]
+					.filter((id) => /order|transaction|purchase|sale|item|list/i.test(id))
+					.slice(0, 25);
+				// Dump a real order card (new markup uses data-testid="my-orders-item")
+				// so we can see where the order id now lives.
+				const sample = document.querySelector('[data-testid="my-orders-item"]')
+					?? candidates.find((node) => /\/items\//.test(node.getAttribute?.('href') ?? ''))
+					?? candidates.find((node) => /order|transaction|purchase|sale/i.test(node.getAttribute?.('href') ?? ''))
+					?? candidates[0] ?? null;
+				const sampleData = sample ? {
+					tag: sample.tagName.toLowerCase(),
+					attrs: Object.fromEntries([...sample.attributes].map((attr) => [attr.name, attr.value])),
+					descendantLinks: [...sample.querySelectorAll('a[href]')].map((link) => link.getAttribute('href')).slice(0, 10),
+					descendantDataAttrs: [...new Set([...sample.querySelectorAll('[data-order-id],[data-orderid],[data-transaction-id],[data-testid]')]
+						.map((node) => [...node.attributes].filter((attr) => attr.name.startsWith('data-'))
+							.map((attr) => `${attr.name}=${attr.value}`)).flat())].slice(0, 20),
+				} : null;
+				const chain = [];
+				for (let node = sample, depth = 0; node && depth < 8; node = node.parentElement, depth += 1) {
+					chain.push({
+						tag: node.tagName.toLowerCase(),
+						class: node.className?.toString?.().slice(0, 120) ?? '',
+						testid: node.getAttribute?.('data-testid') ?? '',
+						href: node.getAttribute?.('href') ?? '',
+						children: node.children?.length ?? 0,
+					});
+				}
+				console.log('[Vinted ParcelPilot] No order cards detected:\n' + JSON.stringify({
+					candidates: candidates.length,
+					candidatesWithoutOrderId: idLessCandidates,
+					orderRelatedLinks: orderLinks,
+					interestingTestIds: testIds,
+					orderFilterFound: Boolean(orderFilter),
+					sample: sampleData,
+					sampleOuterHtml: sample?.outerHTML?.slice(0, 1500) ?? '',
+					sampleAncestorChain: chain,
+				}, null, 2));
+			}
+			return;
+		}
 		addToolbar(cards);
 		debugLog(`Scanning ${cards.size} orders on ${vintedDomain} (${pageLocale})`);
 		for (const [orderId, card] of cards) addLoadingRow(card, orderId);
