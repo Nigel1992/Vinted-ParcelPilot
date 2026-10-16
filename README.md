@@ -44,7 +44,8 @@ No more opening every order one by one — see carriers, tracking numbers, shipm
 
 Shows the main ParcelPilot dashboard with parcel information, shipment status, tracking details, delivery estimates, and controls.
 
-<img width="816" height="307" alt="Vinted ParcelPilot parcel dashboard" src="https://github.com/user-attachments/assets/249ec24d-43fe-4182-bd49-73d83957cd5e" />
+<img width="822" height="321" alt="image" src="https://github.com/user-attachments/assets/81afa125-1f45-4974-8147-ec56d7f9025c" />
+
 
 </details>
 
