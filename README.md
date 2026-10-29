@@ -5,6 +5,8 @@
 
 # 📦 Vinted ParcelPilot
 
+[![Vibe Coded](https://img.shields.io/badge/Vibe_Coded-✨-8A2BE2?style=for-the-badge)](https://github.com)
+
 **Turn Vinted's "My Orders" page into a powerful parcel-tracking dashboard.**
 
 No more opening every order one by one — see carriers, tracking numbers, shipment status, delivery estimates and transit times at a glance.
